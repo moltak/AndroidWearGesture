@@ -49,7 +49,7 @@ public class CallCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
-
+                callback.onCallFinish();
             }
         };
     }

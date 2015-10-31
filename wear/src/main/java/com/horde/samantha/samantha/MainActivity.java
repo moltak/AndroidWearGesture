@@ -69,6 +69,7 @@ public class MainActivity extends Activity implements
     private boolean flag_rotate_detection_right = false;
     private boolean flag_fighting = false;
     private boolean flag_vibrate = false;
+    private boolean flag_call = false;
 
     private long mRotationDetectTime = 0;
 
@@ -205,6 +206,36 @@ public class MainActivity extends Activity implements
             if(!flag_vibrate) {
                 wakeWithVibrate();
             }
+        } else if(mode.equals(MODE_ARRAY[MODE_CALL])) {
+            if(!flag_call) {
+                callWithVibrate();
+            }
+        }
+    }
+
+    public void callWithVibrate() {
+        makeToast("Phone call ~~~");
+
+        long[] vibrationPattern = {0, 500, 50, 300};
+        final int indexInPatternToRepeat = 0;// repeat
+        vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+
+        //TODO: let mobile reject another call
+        //TODO: change image to call screen
+
+        flag_call = true;
+    }
+
+    @Override
+    public void onCallFinish() {
+        if(flag_call) {
+            makeToast("Saved life ~~~");
+
+            vibrator.cancel();
+
+            //TODO: back to previous screen
+
+            flag_call = false;
         }
     }
 

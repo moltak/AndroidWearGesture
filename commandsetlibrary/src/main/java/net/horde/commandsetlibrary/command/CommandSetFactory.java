@@ -24,6 +24,7 @@ public class CommandSetFactory {
         void onWorkoutStart();
         void onWorkoutFinish();
         void onVibrateFinish();
+        void onCallFinish();
     }
 
     public CommandSetFactory mode(String mode) {
