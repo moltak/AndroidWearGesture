@@ -4,12 +4,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,7 +22,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.horde.samantha.samantha.bus.DataEventBus;
-import com.horde.samantha.samantha.util.ThirdpartyExectue;
+import com.horde.samantha.samantha.util.PickImageByMode;
 import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
@@ -33,7 +30,6 @@ import net.horde.commandsetlibrary.rest.model.Result;
 import net.horde.commandsetlibrary.rest.service.Samanda;
 
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -144,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements
                 .subscribe(new Action1<Result>() {
                     @Override
                     public void call(Result result) {
+                        ((ImageView) findViewById(R.id.imageViewMode)).setImageResource(PickImageByMode.pick(result.getMode()));
                         sendToWear(result.getMode());
                     }
                 }, new Action1<Throwable>() {
@@ -178,21 +175,4 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {}
-
-    @OnClick({R.id.buttonNavigation, R.id.buttonMangoplate, R.id.buttonRuntastic})
-    public void onButtonClicked(View view) {
-        switch (view.getId()) {
-            case R.id.buttonNavigation:
-                ThirdpartyExectue.runNavigation(this);
-                break;
-
-            case R.id.buttonMangoplate:
-                ThirdpartyExectue.runMangoplate(this);
-                break;
-
-            case R.id.buttonRuntastic:
-                ThirdpartyExectue.runRuntastic(this);
-                break;
-        }
-    }
 }
