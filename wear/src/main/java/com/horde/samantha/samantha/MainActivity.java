@@ -72,9 +72,15 @@ public class MainActivity extends Activity implements SensorEventListener {
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
-        commandSetFactory = new CommandSetFactory();
-
+        commandSetFactory = new CommandSetFactory().context(this);
+        commandSet = commandSetFactory.create();
     }
+    /*
+    public void fromMobile(String mode) {
+        commandSet = commandSetFactory.mode(mode).create();
+        commandSet.getWristLeftCommand().execute();
+    }
+    */
     public void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -112,6 +118,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
         cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
         startService(cancelAlarmOperation);
+
+        commandSet.getWristCoverCommand().execute();
     }
 
     public void rotationLeftToggle(View view) {
@@ -121,9 +129,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void rotationLeft(boolean flag) {
         flag_rotate_detection_left = flag;
 
-        Toast.makeText(this, "rotate left " + (flag_rotate_detection_left ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "rotate left " + (flag_rotate_detection_left ? "on" : "off"), Toast.LENGTH_SHORT).show();
 
         mButtonLeft.setText("Rotation left " + (flag_rotate_detection_left ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getWristLeftCommand().execute();
+        }
     }
 
     public void rotationRightToggle(View view) {
@@ -133,9 +145,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void rotationRight(boolean flag) {
         flag_rotate_detection_right = flag;
 
-        Toast.makeText(this, "rotate right " + (flag_rotate_detection_right ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "rotate right " + (flag_rotate_detection_right ? "on" : "off"), Toast.LENGTH_SHORT).show();
 
         mButtonRight.setText("Rotation right " + (flag_rotate_detection_right ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getWristRightCommand().execute();
+        }
     }
 
     public void fightingToggle(View view) {
@@ -145,9 +161,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void fighting(boolean flag) {
         flag_fighting = flag;
 
-        Toast.makeText(this, "fighting " + (flag_fighting ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "fighting " + (flag_fighting ? "on" : "off"), Toast.LENGTH_SHORT).show();
 
         mButtonFight.setText("Fighting " + (flag_fighting ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getShakeCommand().execute();
+        }
     }
 
     @Override
@@ -157,18 +177,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         {
             return;
         }
-/*
-        if(mTextValues != null) {
-            mTextValues.setText(
-                    "x = " + Float.toString(event.values[0]) + "\n" +
-                            "y = " + Float.toString(event.values[1]) + "\n" +
-                            "z = " + Float.toString(event.values[2]) + "\n"
-            );
-        }
-*/
+
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             if(flag_alarm_status) {
-                detectShake(event);
+                //detectShake(event);
             }
 
             if(flag_fighting) {
@@ -202,7 +214,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             float gZ = event.values[2] / SensorManager.GRAVITY_EARTH;
 
             // gForce will be close to 1 when there is no movement
-            //float gForce = FloatMath.sqrt(gX * gX + gY * gY + gZ * gZ);
             float gForce = (float)Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
             if(gForce > SHAKE_THRESHOLD) {
@@ -230,13 +241,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             // Change background color if rate of rotation around any
             // axis and in any direction exceeds threshold;
             // otherwise, reset the color
-/*
-            if(Math.abs(event.values[0]) > ROTATION_THRESHOLD ||
-                    Math.abs(event.values[1]) > ROTATION_THRESHOLD ||
-                    Math.abs(event.values[2]) > ROTATION_THRESHOLD) {
-*/
             if(Math.abs(event.values[0]) > ROTATION_THRESHOLD) {
-                //mView.setBackgroundColor(Color.rgb(0, 100, 0));
                 if(flag_rotate_detection_right && event.values[0] > 0) {// right. 안쪽.
                     rotationRight(false);
                 } else if(flag_rotate_detection_left && event.values[0] < 0) {// left. 바깥쪽.
