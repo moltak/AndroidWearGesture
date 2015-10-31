@@ -120,7 +120,7 @@ public class SensorFragment extends Fragment implements SensorEventListener {
             float gZ = event.values[2] / SensorManager.GRAVITY_EARTH;
 
             // gForce will be close to 1 when there is no movement
-            float gForce = FloatMath.sqrt(gX*gX + gY*gY + gZ*gZ);
+            double gForce = Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
             // Change background color if gForce exceeds threshold;
             // otherwise, reset the color
