@@ -1,9 +1,5 @@
 package lge.com.weartesetapp;
 
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -21,30 +17,16 @@ import static org.junit.Assert.assertThat;
  */
 public class RestTest {
 
-    private MockWebServer server;
-
-    @Before
-    public void setUp() throws Exception {
-        server = new MockWebServer();
-        server.enqueue(new MockResponse().setBody("{\n" +
-                "  \"mode\":\"mode\",\n" +
-                "  \"time\":\"1\",\n" +
-                "  \"lat\":1.0,\n" +
-                "  \"lng\":1.0\n" +
-                "}"));
-        server.start();
-    }
-
     @Test
     public void simpleTest() throws ExecutionException, InterruptedException {
-        Observable<Result> o = RetrofitAdapterProvider.test(server.url("/data").toString())
+        Observable<Result> o = RetrofitAdapterProvider.get()
                 .create(Samanda.class)
                 .get();
 
         Result result = o.toBlocking().toFuture().get();
-        assertThat(result.getTime(), is("1"));
-        assertThat(result.getMode(), is("mode"));
-        assertThat(result.getLat(), is(1.0));
-        assertThat(result.getLng(), is(1.0));
+//        assertThat(result.getTime(), is("2015-10-31T15:23:13+09:00"));
+        assertThat(result.getMode(), is("init"));
+        assertThat(result.getLat(), is(37.507976));
+        assertThat(result.getLng(), is(127.045094));
     }
 }

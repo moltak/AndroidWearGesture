@@ -10,7 +10,7 @@ import retrofit.client.OkClient;
 public class RetrofitAdapterProvider {
     public static RestAdapter get() {
         return new RestAdapter.Builder()
-                .setEndpoint("https://api.github.com")
+                .setEndpoint("http://172.20.3.103:10001")
                 .setClient(new OkClient())
                 .build();
     }
