@@ -70,6 +70,7 @@ public class MainActivity extends Activity implements
     private boolean flag_fighting = false;
     private boolean flag_vibrate = false;
     private boolean flag_call = false;
+    private boolean flag_alarm = false;
 
     private long mRotationDetectTime = 0;
 
@@ -210,6 +211,35 @@ public class MainActivity extends Activity implements
             if(!flag_call) {
                 callWithVibrate();
             }
+        } else if(mode.equals(MODE_ARRAY[MODE_WAKEUP])) {
+            if(!flag_alarm) {
+                alarmToPhone();
+            }
+        }
+    }
+
+    public void alarmToPhone() {
+        if(!flag_alarm) {
+            makeToast("Wake up ~~~");
+
+            Intent toggleAlarmOperation = new Intent(this, FindPhoneService.class);
+            toggleAlarmOperation.setAction(FindPhoneService.ACTION_TOGGLE_ALARM);
+            startService(toggleAlarmOperation);
+
+            flag_alarm = true;
+        }
+    }
+
+    @Override
+    public void onAlarmFinish() {
+        if(flag_alarm) {
+            makeToast("Good morning ~~~");
+
+            Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
+            cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
+            startService(cancelAlarmOperation);
+
+            flag_alarm = false;
         }
     }
 
@@ -288,20 +318,6 @@ public class MainActivity extends Activity implements
         //fighting(true);
     }
 
-    public void alarmOn() {
-        Intent toggleAlarmOperation = new Intent(this, FindPhoneService.class);
-        toggleAlarmOperation.setAction(FindPhoneService.ACTION_TOGGLE_ALARM);
-        startService(toggleAlarmOperation);
-    }
-
-    public void alarmOff() {
-        Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
-        cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
-        startService(cancelAlarmOperation);
-
-        commandSet.getWristCoverCommand().execute();
-    }
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         // If sensor is unreliable, then just return
@@ -348,7 +364,7 @@ public class MainActivity extends Activity implements
             float gForce = (float)Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
             if(gForce > SHAKE_THRESHOLD) {
-                alarmOff();
+                //alarmOff();
             }
         }
     }
