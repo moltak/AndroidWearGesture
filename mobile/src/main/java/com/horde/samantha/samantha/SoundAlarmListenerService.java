@@ -67,34 +67,42 @@ public class SoundAlarmListenerService extends WearableListenerService {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "onDataChanged: " + dataEvents + " for " + getPackageName());
         }
+
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_DELETED) {
                 Log.i(TAG, event + " deleted");
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                Boolean alarmOn =
-                        DataMap.fromByteArray(event.getDataItem().getData()).get(FIELD_ALARM_ON);
-                if (alarmOn) {
-                    mOrigVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
-                    mMediaPlayer.reset();
-                    // Sound alarm at max volume.
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mMaxVolume, 0);
-                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                    try {
-                        mMediaPlayer.setDataSource(getApplicationContext(), mAlarmSound);
-                        mMediaPlayer.prepare();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to prepare media player to play alarm.", e);
-                    }
-                    mMediaPlayer.start();
-                } else {
-                    // Reset the alarm volume to the user's original setting.
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mOrigVolume, 0);
-                    if (mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.stop();
-                    }
+                try {
+                    changeAlarm(event);
+                } catch (NullPointerException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
     }
 
+    private void changeAlarm(DataEvent event) {
+        boolean alarmOn =
+                DataMap.fromByteArray(event.getDataItem().getData()).get(FIELD_ALARM_ON);
+        if (alarmOn) {
+            mOrigVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+            mMediaPlayer.reset();
+            // Sound alarm at max volume.
+            mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mMaxVolume, 0);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            try {
+                mMediaPlayer.setDataSource(getApplicationContext(), mAlarmSound);
+                mMediaPlayer.prepare();
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to prepare media player to play alarm.", e);
+            }
+            mMediaPlayer.start();
+        } else {
+            // Reset the alarm volume to the user's original setting.
+            mAudioManager.setStreamVolume(AudioManager.STREAM_ALARM, mOrigVolume, 0);
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+            }
+        }
+    }
 }

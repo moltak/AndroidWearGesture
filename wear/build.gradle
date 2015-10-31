@@ -6,7 +6,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "lge.com.weartesetapp"
+        applicationId "com.horde.samantha.samantha"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1

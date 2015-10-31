@@ -15,17 +15,22 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
+
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
-import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
-import net.horde.commandsetlibrary.rest.model.Result;
-import net.horde.commandsetlibrary.rest.service.Samanda;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
-
-public class MainActivity extends Activity implements SensorEventListener, CommandSetFactory.Callback {
+public class MainActivity extends Activity implements SensorEventListener, CommandSetFactory.Callback, DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     TextView mText;
 
@@ -58,12 +63,15 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
     private boolean flag_fighting = true;
-    //
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
 
     private String mode = null;
+
+    private GoogleApiClient googleApiClient;
+
+    private final String TAG = "Wear";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +105,12 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
                 });
             }
         });
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -149,23 +163,53 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         commandSet = commandSetFactory.mode(mode).create();
     }
 
+    @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
+        googleApiClient.connect();
         mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected");
+        Wearable.DataApi.addListener(googleApiClient, this);
+    }
+
+    @Override
     public void onPause() {
-        super.onPause();
+        Wearable.DataApi.removeListener(googleApiClient, this);
         mSensorManager.unregisterListener(this);
+        super.onPause();
     }
 
     public void makeToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public void requestContext(View view) {
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.d(TAG, "onDataChanged");
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // DataItem changed
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().compareTo("/mode") == 0) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    createCommandSet(dataMap.getString("com.samantha.data.mode"));
+                }
+            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                // DataItem deleted
+            }
+        }
+    }
+
+    private void createCommandSet(String mode) {
+        commandSet = commandSetFactory.mode(mode).create();
+        Log.d("TAG", mode);
+        Log.d("TAG", commandSet.toString());
     }
 
     @Override
@@ -332,4 +376,13 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
             }
         }
     }
+
+    /*
+     * uselsess
+     */
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {}
 }
