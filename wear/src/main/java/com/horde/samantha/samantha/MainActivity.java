@@ -127,58 +127,30 @@ public class MainActivity extends Activity implements
         commandSetFactory = new CommandSetFactory().context(this);
     }
 
+    int COUNT = 0;
     public void requestToMobile(View view) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", String.valueOf(COUNT));
+        COUNT ++;
 
-    }
-/*
-    public void generateCommandMode() {
-        int index;
-
-        while(true) {
-            index = (int)(Math.random() * 10) % 7;
-
-            if(!MODE_ARRAY[index].equals(mode)) {// 임시로 중복 방지
-                break;
+        PutDataRequest request = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(googleApiClient, request);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if (result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
+                }
             }
-        }
-
-        setText(MODE_ARRAY[index]);
-        setCommandMode(MODE_ARRAY[index]);
-
-        switch(index) {
-            case MODE_SLEEP:
-                break;
-            case MODE_WORKOUT:
-                flag_fighting = true;
-
-                break;
-            case MODE_CALL:
-                break;
-            case MODE_VIBRATE:
-                break;
-            case MODE_LUNCH:
-                break;
-            case MODE_NAVI:
-                flag_rotate_detection_left = true;
-
-                break;
-            case MODE_WAKEUP:
-                break;
-        }
+        });
     }
-*/
     public void setText(String text) {
         if(mText != null) {
             mText.setText(text);
         }
     }
-/*
-    public void setCommandMode(String mode) {
-        this.mode = mode;
 
-        commandSet = commandSetFactory.mode(mode).create();
-    }
-*/
     @Override
     public void onResume() {
         super.onResume();
@@ -247,17 +219,13 @@ public class MainActivity extends Activity implements
     @Override
     public void onNaviFinish() {
         makeToast("Arrived ~~~");
-
         rotationLeft(true);
     }
 
     @Override
     public void onWorkoutStart() {
         makeToast("Run ~~~");
-
         fighting(false);
-
-        sendToMobile(mode);
     }
 
     @Override
@@ -265,22 +233,6 @@ public class MainActivity extends Activity implements
         makeToast("Welldone ~~~");
 
         fighting(true);
-    }
-
-    private void sendToMobile(String mode) {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
-        putDataMapReq.getDataMap().putString("com.samantha.data.command", mode);
-        PutDataRequest request = putDataMapReq.asPutDataRequest();
-        PendingResult<DataApi.DataItemResult> pendingResult =
-                Wearable.DataApi.putDataItem(googleApiClient, request);
-        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-            @Override
-            public void onResult(final DataApi.DataItemResult result) {
-                if (result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
-                }
-            }
-        });
     }
 
     public void alarmToggle(View view) {
