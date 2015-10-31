@@ -2,7 +2,6 @@ package lge.com.weartesetapp;
 
 import org.junit.Test;
 
-import lge.com.weartesetapp.command.Command;
 import lge.com.weartesetapp.command.CommandSet;
 import lge.com.weartesetapp.command.CommandSetFactory;
 import lge.com.weartesetapp.command.commandsets.FakeModeCommandSet;
@@ -22,8 +21,10 @@ public class CommandTest {
         CommandSet commandSet = factory.mode("mode").context(null).create();
         assertThat(commandSet, instanceOf(FakeModeCommandSet.class));
 
-        Command command = commandSet.getWristLeftCommand();
-        assertThat(command, notNullValue());
-        assertThat(commandSet.getWristRightCommand());
+        assertThat(commandSet.getWristLeftCommand(), notNullValue());
+        assertThat(commandSet.getWristRightCommand(), notNullValue());
+        assertThat(commandSet.getShakeCommand(), notNullValue());
+        assertThat(commandSet.getWristCoverCommand(), notNullValue());
+        assertThat(commandSet.getHeartCommand(), notNullValue());
     }
 }

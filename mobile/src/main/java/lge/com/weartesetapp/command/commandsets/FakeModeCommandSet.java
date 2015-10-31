@@ -22,7 +22,42 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+            }
+        };
+    }
 
+    @Override
+    public Command getWristRightCommand() {
+        return new Command() {
+            @Override
+            public void execute() {
+            }
+        };
+    }
+
+    @Override
+    public Command getShakeCommand() {
+        return new Command() {
+            @Override
+            public void execute() {
+            }
+        };
+    }
+
+    @Override
+    public Command getWristCoverCommand() {
+        return new Command() {
+            @Override
+            public void execute() {
+            }
+        };
+    }
+
+    @Override
+    public Command getHeartCommand() {
+        return new Command() {
+            @Override
+            public void execute() {
             }
         };
     }
