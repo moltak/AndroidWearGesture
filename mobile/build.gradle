@@ -9,7 +9,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "lge.com.weartesetapp"
+        applicationId "com.horde.samantha.samantha"
         minSdkVersion 21
         targetSdkVersion 22
         versionCode 1
@@ -30,6 +30,7 @@ dependencies {
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.google.android.gms:play-services:8.1.0'
+    compile 'com.android.support:design:22.2.0'
 
     testCompile 'junit:junit:4.12'
     testCompile 'com.squareup.okhttp:mockwebserver:2.5.0'

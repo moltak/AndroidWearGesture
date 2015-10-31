@@ -1,4 +1,4 @@
-package lge.com.weartesetapp.util;
+package com.horde.samantha.samantha.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

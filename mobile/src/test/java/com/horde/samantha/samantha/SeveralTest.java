@@ -1,4 +1,6 @@
-package lge.com.weartesetapp;
+package com.horde.samantha.samantha;
+
+import com.horde.samantha.samantha.util.ISO8601;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
 import net.horde.commandsetlibrary.rest.model.Result;
@@ -11,7 +13,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
-import lge.com.weartesetapp.util.ISO8601;
 import rx.Observable;
 
 import static org.hamcrest.CoreMatchers.is;
