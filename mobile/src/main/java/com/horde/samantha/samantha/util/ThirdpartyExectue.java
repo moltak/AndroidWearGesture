@@ -1,6 +1,8 @@
 package com.horde.samantha.samantha.util;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -16,13 +18,28 @@ public class ThirdpartyExectue {
         activity.startActivity(mapIntent);
     }
 
+    public static void killNavigation(Activity activity) {
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.google.android.apps.maps");
+    }
+
     public static void runRuntastic(Activity activity) {
         Intent launchIntent = activity.getPackageManager().getLaunchIntentForPackage("com.runtastic.android");
         activity.startActivity(launchIntent);
     }
 
+    public static void killRuntastic(Activity activity) {
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.runtastic.android");
+    }
+
     public static void runMangoplate(Activity activity) {
         Intent launchIntent = activity.getPackageManager().getLaunchIntentForPackage("com.mangoplate");
         activity.startActivity(launchIntent);
+    }
+
+    public static void killMangoplate(Activity activity) {
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.mangoplate");
     }
 }
