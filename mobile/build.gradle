@@ -30,4 +30,7 @@ dependencies {
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.google.android.gms:play-services:8.1.0'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
 }

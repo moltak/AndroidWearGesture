@@ -1,5 +1,9 @@
 package lge.com.weartesetapp;
 
+import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
+import net.horde.commandsetlibrary.rest.model.Result;
+import net.horde.commandsetlibrary.rest.service.Samanda;
+
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -7,9 +11,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
-import lge.com.weartesetapp.rest.RetrofitAdapterProvider;
-import lge.com.weartesetapp.rest.model.Result;
-import lge.com.weartesetapp.rest.service.Samanda;
 import lge.com.weartesetapp.util.ISO8601;
 import rx.Observable;
 

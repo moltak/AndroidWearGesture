@@ -22,4 +22,14 @@ public class Result {
     public double getLng() {
         return lng;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "time='" + time + '\'' +
+                ", mode='" + mode + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                '}';
+    }
 }

@@ -8,10 +8,10 @@ import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 
 import net.horde.commandsetlibrary.command.CommandSetFactory;
+import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
+import net.horde.commandsetlibrary.rest.model.Result;
+import net.horde.commandsetlibrary.rest.service.Samanda;
 
-import lge.com.weartesetapp.rest.RetrofitAdapterProvider;
-import lge.com.weartesetapp.rest.model.Result;
-import lge.com.weartesetapp.rest.service.Samanda;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
