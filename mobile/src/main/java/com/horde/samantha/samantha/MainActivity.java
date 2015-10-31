@@ -25,7 +25,9 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.horde.samantha.samantha.bus.DataEventBus;
+import com.horde.samantha.samantha.util.PickBulletineImageByMode;
 import com.horde.samantha.samantha.util.PickImageByMode;
+import com.horde.samantha.samantha.util.PickStringByMode;
 import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
@@ -158,8 +160,8 @@ public class MainActivity extends AppCompatActivity implements
     private void sendToWidget(String mode) {
         SharedPreferences sharedPreferences = getSharedPreferences("widget", Context.MODE_PRIVATE);
         sharedPreferences.edit()
-                .putInt("image", R.drawable.a_alarm)
-                .putString("title", "dsalkfjsadlkjfsdaklsadfjkldsj")
+                .putInt("image", PickBulletineImageByMode.pick(mode))
+                .putString("title", PickStringByMode.pick(mode))
                 .commit();
 
         Intent i = new Intent(this, SamanthaWidget.class);
