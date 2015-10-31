@@ -5,8 +5,16 @@ import android.os.Bundle;
 import android.support.wearable.view.DotsPageIndicator;
 import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
+import android.util.Log;
 
 import net.horde.commandsetlibrary.command.CommandSetFactory;
+
+import lge.com.weartesetapp.rest.RetrofitAdapterProvider;
+import lge.com.weartesetapp.rest.model.Result;
+import lge.com.weartesetapp.rest.service.Samanda;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity {
 
@@ -31,6 +39,21 @@ public class MainActivity extends Activity {
 
         // my libary
         commandSetFactory = new CommandSetFactory();
-
+        RetrofitAdapterProvider.get()
+                .create(Samanda.class)
+                .get()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Action1<Result>() {
+                    @Override
+                    public void call(Result result) {
+                        Log.d("tag", result.toString());
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                });
     }
 }
