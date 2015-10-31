@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 repositories {
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
 }
@@ -12,6 +13,18 @@ android {
         applicationId "lge.com.weartesetapp"
         minSdkVersion 21
         targetSdkVersion 22
+=======
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "com.horde.samantha.samantha"
+        minSdkVersion 9
+        targetSdkVersion 23
+>>>>>>> o/marine1079
         versionCode 1
         versionName "1.0"
     }
@@ -26,6 +39,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
+<<<<<<< HEAD
     compile project(':commandsetlibrary')
     compile 'com.android.support:support-v4:22.2.0'
     compile 'com.android.support:appcompat-v7:22.2.0'
@@ -33,4 +47,10 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
+=======
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.google.android.gms:play-services:8.1.0'
+    compile 'com.android.support:design:23.1.0'
+>>>>>>> o/marine1079
 }

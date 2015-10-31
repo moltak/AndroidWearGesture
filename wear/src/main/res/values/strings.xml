@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">WearTesetApp</string>
+    <string name="app_name">Samantha</string>
     <string name="hello_round">Hello Round World!</string>
     <string name="hello_square">Hello Square World!</string>
+    <string name="left_phone_title">Forgetting something?</string>
+    <string name="left_phone_content">You may have left your phone behind.</string>
 </resources>
