@@ -12,6 +12,7 @@ import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -31,13 +32,27 @@ import com.google.android.gms.wearable.Wearable;
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
 
-public class MainActivity extends Activity implements SensorEventListener,
+public class MainActivity extends Activity implements
+        SensorEventListener,
+        CommandSetFactory.Callback,
         DataApi.DataListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    TextView mText;
+
     //TextView mTextValues, mTextValues2;
     Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
+
+    // modes
+    private static final int MODE_WAKEUP = 0;
+    private static final int MODE_NAVI = 1;
+    private static final int MODE_LUNCH = 2;
+    private static final int MODE_VIBRATE = 3;
+    private static final int MODE_CALL = 4;
+    private static final int MODE_WORKOUT = 5;
+    private static final int MODE_SLEEP = 6;
+    private static final String[] MODE_ARRAY = new String[]{"wakeup", "navi", "lunch", "vibrate", "call", "workout", "sleep"};
 
     // sensors
     private static final float SHAKE_THRESHOLD = 1.1f;
@@ -59,6 +74,8 @@ public class MainActivity extends Activity implements SensorEventListener,
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
 
+    private String mode = null;
+
     private GoogleApiClient googleApiClient;
 
     private final String TAG = "Wear";
@@ -77,6 +94,22 @@ public class MainActivity extends Activity implements SensorEventListener,
                 mButtonLeft = (Button) stub.findViewById(R.id.rotation_left_toggle);
                 mButtonRight = (Button) stub.findViewById(R.id.rotation_right_toggle);
                 mButtonFight = (Button) stub.findViewById(R.id.fighting_toggle);
+
+                mText = (TextView) stub.findViewById(R.id.text);
+                mText.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        requestToMobile(null);
+                    }
+                });
+                mText.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        commandSet.getWristCoverCommand().execute();
+
+                        return true;
+                    }
+                });
             }
         });
 
@@ -92,7 +125,30 @@ public class MainActivity extends Activity implements SensorEventListener,
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
-        commandSet = commandSetFactory.create();
+    }
+
+    int COUNT = 0;
+    public void requestToMobile(View view) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", String.valueOf(COUNT));
+        COUNT ++;
+
+        PutDataRequest request = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(googleApiClient, request);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if (result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Item has been sent: " + COUNT);
+                }
+            }
+        });
+    }
+    public void setText(String text) {
+        if(mText != null) {
+            mText.setText(text);
+        }
     }
 
     @Override
@@ -117,6 +173,10 @@ public class MainActivity extends Activity implements SensorEventListener,
         super.onPause();
     }
 
+    public void makeToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         Log.d(TAG, "onDataChanged");
@@ -138,27 +198,41 @@ public class MainActivity extends Activity implements SensorEventListener,
     }
 
     private void createCommandSet(String mode) {
-        Log.d("TAG", "Data: " + mode);
+        setText(mode);
         commandSet = commandSetFactory.mode(mode).create();
         Log.d("TAG", commandSet.toString());
 
-        sendToMobile(mode);
+        if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
+            fighting(true);
+        } else if(mode.equals(MODE_ARRAY[MODE_NAVI])) {
+            rotationLeft(true);
+        }
     }
 
-    private void sendToMobile(String mode) {
-        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
-        putDataMapReq.getDataMap().putString("com.samantha.data.command", mode);
-        PutDataRequest request = putDataMapReq.asPutDataRequest();
-        PendingResult<DataApi.DataItemResult> pendingResult =
-                Wearable.DataApi.putDataItem(googleApiClient, request);
-        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-            @Override
-            public void onResult(final DataApi.DataItemResult result) {
-                if(result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
-                }
-            }
-        });
+    @Override
+    public void onNaviStart() {
+        makeToast("Drive go ~~~");
+
+        rotationLeft(false);
+    }
+
+    @Override
+    public void onNaviFinish() {
+        makeToast("Arrived ~~~");
+        rotationLeft(true);
+    }
+
+    @Override
+    public void onWorkoutStart() {
+        makeToast("Run ~~~");
+        fighting(false);
+    }
+
+    @Override
+    public void onWorkoutFinish() {
+        makeToast("Welldone ~~~");
+
+        fighting(true);
     }
 
     public void alarmToggle(View view) {
@@ -183,6 +257,8 @@ public class MainActivity extends Activity implements SensorEventListener,
         Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
         cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
         startService(cancelAlarmOperation);
+
+        commandSet.getWristCoverCommand().execute();
     }
 
     public void rotationLeftToggle(View view) {
@@ -190,11 +266,18 @@ public class MainActivity extends Activity implements SensorEventListener,
     }
 
     public void rotationLeft(boolean flag) {
+        if(flag) {
+            flag_rotate_detection_right = false;
+            flag_fighting = false;
+        }
+
         flag_rotate_detection_left = flag;
 
-        Toast.makeText(this, "rotate left " + (flag_rotate_detection_left ? "on" : "off"), Toast.LENGTH_SHORT).show();
-
         mButtonLeft.setText("Rotation left " + (flag_rotate_detection_left ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getWristLeftCommand().execute();
+        }
     }
 
     public void rotationRightToggle(View view) {
@@ -202,11 +285,18 @@ public class MainActivity extends Activity implements SensorEventListener,
     }
 
     public void rotationRight(boolean flag) {
+        if(flag) {
+            flag_rotate_detection_left = false;
+            flag_fighting = false;
+        }
+
         flag_rotate_detection_right = flag;
 
-        Toast.makeText(this, "rotate right " + (flag_rotate_detection_right ? "on" : "off"), Toast.LENGTH_SHORT).show();
-
         mButtonRight.setText("Rotation right " + (flag_rotate_detection_right ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getWristRightCommand().execute();
+        }
     }
 
     public void fightingToggle(View view) {
@@ -214,11 +304,18 @@ public class MainActivity extends Activity implements SensorEventListener,
     }
 
     public void fighting(boolean flag) {
+        if(flag) {
+            flag_rotate_detection_left = false;
+            flag_rotate_detection_right = false;
+        }
+
         flag_fighting = flag;
 
-        Toast.makeText(this, "fighting " + (flag_fighting ? "on" : "off"), Toast.LENGTH_SHORT).show();
-
         mButtonFight.setText("Fighting " + (flag_fighting ? "off" : "on"));
+
+        if(!flag) {
+            commandSet.getShakeCommand().execute();
+        }
     }
 
     @Override
@@ -228,18 +325,10 @@ public class MainActivity extends Activity implements SensorEventListener,
         {
             return;
         }
-/*
-        if(mTextValues != null) {
-            mTextValues.setText(
-                    "x = " + Float.toString(event.values[0]) + "\n" +
-                            "y = " + Float.toString(event.values[1]) + "\n" +
-                            "z = " + Float.toString(event.values[2]) + "\n"
-            );
-        }
-*/
+
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             if(flag_alarm_status) {
-                detectShake(event);
+                //detectShake(event);
             }
 
             if(flag_fighting) {
@@ -273,7 +362,6 @@ public class MainActivity extends Activity implements SensorEventListener,
             float gZ = event.values[2] / SensorManager.GRAVITY_EARTH;
 
             // gForce will be close to 1 when there is no movement
-            //float gForce = FloatMath.sqrt(gX * gX + gY * gY + gZ * gZ);
             float gForce = (float)Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
             if(gForce > SHAKE_THRESHOLD) {
@@ -301,13 +389,7 @@ public class MainActivity extends Activity implements SensorEventListener,
             // Change background color if rate of rotation around any
             // axis and in any direction exceeds threshold;
             // otherwise, reset the color
-/*
-            if(Math.abs(event.values[0]) > ROTATION_THRESHOLD ||
-                    Math.abs(event.values[1]) > ROTATION_THRESHOLD ||
-                    Math.abs(event.values[2]) > ROTATION_THRESHOLD) {
-*/
             if(Math.abs(event.values[0]) > ROTATION_THRESHOLD) {
-                //mView.setBackgroundColor(Color.rgb(0, 100, 0));
                 if(flag_rotate_detection_right && event.values[0] > 0) {// right. 안쪽.
                     rotationRight(false);
                 } else if(flag_rotate_detection_left && event.values[0] < 0) {// left. 바깥쪽.

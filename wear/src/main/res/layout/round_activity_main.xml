@@ -4,8 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
+    android:gravity="center"
     tools:context=".MainActivity" tools:deviceIds="wear_round">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/app_name"
+        android:textSize="24sp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text = "Request"
+        android:onClick ="requestToMobile" />
 <!--
     <TextView
         android:id="@+id/values"
@@ -23,27 +37,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text = "Alarm on"
-        android:onClick ="alarmToggle" />
+        android:onClick ="alarmToggle"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/rotation_left_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text = "Rotation left on"
-        android:onClick ="rotationLeftToggle" />
+        android:onClick ="rotationLeftToggle"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/rotation_right_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text = "Rotation right on"
-        android:onClick ="rotationRightToggle" />
+        android:onClick ="rotationRightToggle"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/fighting_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text = "Fighting on"
-        android:onClick ="fightingToggle" />
+        android:onClick ="fightingToggle"
+        android:visibility="gone" />
 
 </LinearLayout>
