@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendToWear(String mode) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/mode");
-        putDataMapReq.getDataMap().putString("MODE", mode);
+        putDataMapReq.getDataMap().putString("com.samantha.data.mode", mode);
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(googleApiClient, putDataReq);

@@ -14,6 +14,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
+
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
@@ -24,9 +34,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity implements SensorEventListener,
+        DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
-    //TextView mTextValues, mTextValues2;
+        //TextView mTextValues, mTextValues2;
     Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
 
     // sensors
@@ -45,10 +58,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
     private boolean flag_fighting = false;
-    //
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
+
+
+    private static final String DATA_KEY = "com.samantha.data.mode";
+    private GoogleApiClient googleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,27 +83,59 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         });
 
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
-        commandSetFactory = new CommandSetFactory();
-
+        commandSetFactory = new CommandSetFactory().context(this);
+        commandSet = commandSetFactory.create();
     }
+
+    @Override
     public void onResume() {
         super.onResume();
+        googleApiClient.connect();
         mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener(this);
+    public void onConnected(Bundle bundle) {
+        Wearable.DataApi.addListener(googleApiClient, this);
     }
 
-    public void requestContext(View view) {
+    @Override
+    public void onPause() {
+        Wearable.DataApi.removeListener(googleApiClient, this);
+        mSensorManager.unregisterListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // DataItem changed
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().compareTo("/mode") == 0) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    createCommandSet(dataMap.getString(DATA_KEY));
+                }
+            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                // DataItem deleted
+            }
+        }
+    }
+
+    private void createCommandSet(String mode) {
+        commandSet = commandSetFactory.mode(mode).create();
     }
 
     public void alarmToggle(View view) {
@@ -244,5 +292,18 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
             }
         }
+    }
+
+    /*
+     * uselsess
+     */
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 }
