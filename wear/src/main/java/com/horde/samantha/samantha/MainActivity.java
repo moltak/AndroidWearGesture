@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
@@ -67,8 +68,11 @@ public class MainActivity extends Activity implements
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
     private boolean flag_fighting = false;
+    private boolean flag_vibrate = false;
 
     private long mRotationDetectTime = 0;
+
+    private Vibrator vibrator;
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
@@ -112,6 +116,8 @@ public class MainActivity extends Activity implements
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
     }
@@ -195,6 +201,31 @@ public class MainActivity extends Activity implements
             flag_fighting = true;
         } else if(mode.equals(MODE_ARRAY[MODE_NAVI])) {
             flag_rotate_detection_left = true;
+        } else if(mode.equals(MODE_ARRAY[MODE_VIBRATE])) {
+            if(!flag_vibrate) {
+                wakeWithVibrate();
+            }
+        }
+    }
+
+    public void wakeWithVibrate() {
+        makeToast("Wake up ~~~");
+
+        long[] vibrationPattern = {0, 500, 50, 300};
+        final int indexInPatternToRepeat = 0;// repeat
+        vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+
+        flag_vibrate = true;
+    }
+
+    @Override
+    public void onVibrateFinish() {
+        if(flag_vibrate) {
+            makeToast("Good job ~~~");
+
+            vibrator.cancel();
+
+            flag_vibrate = false;
         }
     }
 

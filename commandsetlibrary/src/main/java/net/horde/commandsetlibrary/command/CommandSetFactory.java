@@ -23,6 +23,7 @@ public class CommandSetFactory {
         void onNaviFinish();
         void onWorkoutStart();
         void onWorkoutFinish();
+        void onVibrateFinish();
     }
 
     public CommandSetFactory mode(String mode) {
