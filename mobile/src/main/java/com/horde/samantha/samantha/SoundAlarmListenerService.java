@@ -71,7 +71,7 @@ public class SoundAlarmListenerService extends WearableListenerService {
             if (event.getType() == DataEvent.TYPE_DELETED) {
                 Log.i(TAG, event + " deleted");
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                Boolean alarmOn =
+                boolean alarmOn =
                         DataMap.fromByteArray(event.getDataItem().getData()).get(FIELD_ALARM_ON);
                 if (alarmOn) {
                     mOrigVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_ALARM);

@@ -39,7 +39,7 @@ public class MainActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-        //TextView mTextValues, mTextValues2;
+    //TextView mTextValues, mTextValues2;
     Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
 
     // sensors
@@ -62,9 +62,9 @@ public class MainActivity extends Activity implements SensorEventListener,
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
 
-
-    private static final String DATA_KEY = "com.samantha.data.mode";
     private GoogleApiClient googleApiClient;
+
+    private final String TAG = "Wear";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,13 +120,14 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
+        Log.d(TAG, "onDataChanged");
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
                 // DataItem changed
                 DataItem item = event.getDataItem();
                 if (item.getUri().getPath().compareTo("/mode") == 0) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    createCommandSet(dataMap.getString(DATA_KEY));
+                    createCommandSet(dataMap.getString("com.samantha.data.mode"));
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -136,6 +137,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     private void createCommandSet(String mode) {
         commandSet = commandSetFactory.mode(mode).create();
+        Log.d("TAG", mode);
     }
 
     public void alarmToggle(View view) {
@@ -299,11 +301,7 @@ public class MainActivity extends Activity implements SensorEventListener,
      */
 
     @Override
-    public void onConnectionSuspended(int i) {
-    }
-
+    public void onConnectionSuspended(int i) {}
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
+    public void onConnectionFailed(ConnectionResult connectionResult) {}
 }
