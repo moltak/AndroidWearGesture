@@ -62,7 +62,7 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     private boolean flag_alarm_status = false;
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
-    private boolean flag_fighting = true;
+    private boolean flag_fighting = false;
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
@@ -92,7 +92,7 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
                 mText.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        generateCommandMode();
+                        requestToMobile(null);
                     }
                 });
                 mText.setOnLongClickListener(new View.OnLongClickListener() {
@@ -120,6 +120,10 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         commandSetFactory = new CommandSetFactory().context(this);
     }
 
+    public void requestToMobile(View view) {
+
+    }
+/*
     public void generateCommandMode() {
         int index;
 
@@ -152,17 +156,21 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
                 break;
         }
     }
-
+*/
     public void setText(String text) {
-        mText.setText(text);
+        if(mText != null) {
+            mText.setText(text);
+        }
     }
-
+/*
     public void setCommandMode(String mode) {
         this.mode = mode;
 
+        setText(mode);
+
         commandSet = commandSetFactory.mode(mode).create();
     }
-
+*/
     @Override
     public void onResume() {
         super.onResume();
@@ -207,9 +215,15 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     }
 
     private void createCommandSet(String mode) {
+        setText(mode);
+
         commandSet = commandSetFactory.mode(mode).create();
         Log.d("TAG", mode);
         Log.d("TAG", commandSet.toString());
+
+        if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
+            flag_fighting = true;// detecting on
+        }
     }
 
     @Override
@@ -220,6 +234,8 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     @Override
     public void onWorkoutFinish() {
         makeToast("Welldone ~~~");
+
+        flag_fighting = true;
     }
 
     public void alarmToggle(View view) {
@@ -354,7 +370,7 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         float gZ = event.values[2];// / SensorManager.GRAVITY_EARTH;
 
         if(Math.abs(gX) > FIGHTING_THRESHOLD) {
-            fighting(false);
+            flag_fighting = false;
         }
     }
 
