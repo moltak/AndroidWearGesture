@@ -12,6 +12,7 @@ public class RetrofitAdapterProvider {
         return new RestAdapter.Builder()
                 .setEndpoint("http://172.20.3.103:10001")
                 .setClient(new OkClient())
+                .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
     }
 

@@ -2,11 +2,15 @@ package lge.com.weartesetapp;
 
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import lge.com.weartesetapp.rest.RetrofitAdapterProvider;
 import lge.com.weartesetapp.rest.model.Result;
 import lge.com.weartesetapp.rest.service.Samanda;
+import lge.com.weartesetapp.util.ISO8601;
 import rx.Observable;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -15,7 +19,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by engeng on 10/31/15.
  */
-public class RestTest {
+public class SeveralTest {
 
     @Test
     public void simpleTest() throws ExecutionException, InterruptedException {
@@ -28,5 +32,14 @@ public class RestTest {
         assertThat(result.getMode(), is("init"));
         assertThat(result.getLat(), is(37.507976));
         assertThat(result.getLng(), is(127.045094));
+    }
+
+    @Test
+    public void iso8601Test() throws ParseException {
+        Calendar c = ISO8601.toCalendar("2015-10-31T15:23:13+09:00", TimeZone.getDefault());
+        assertThat(c.get(Calendar.YEAR), is(2015));
+        assertThat(c.get(Calendar.MONTH), is(Calendar.OCTOBER));
+        assertThat(c.get(Calendar.DATE), is(31));
+        assertThat(c.get(Calendar.HOUR_OF_DAY), is(15));
     }
 }
