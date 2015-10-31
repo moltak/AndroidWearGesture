@@ -12,11 +12,7 @@ import android.os.Vibrator;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
-<<<<<<< HEAD
-import android.widget.Button;
 import android.widget.ImageView;
-=======
->>>>>>> o/marine1079
 import android.widget.TextView;
 import android.widget.Toast;
 
