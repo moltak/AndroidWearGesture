@@ -9,19 +9,19 @@ public class PickBulletineImageByMode {
     public static int pick(String mode) {
         switch (mode) {
             case "wakeup":
-                return R.drawable.alarm;
+                return R.drawable.a_alarm;
             case "navi":
-                return R.drawable.navi;
+                return R.drawable.f_navi;
             case "lunch":
-                return R.drawable.eating;
+                return R.drawable.b_eating;
             case "vibrate":
-                return R.drawable.bangbang;
+                return R.drawable.c_bangbang;
             case "call":
-                return R.drawable.phone;
+                return R.drawable.e_calling;
             case "workout":
-                return R.drawable.health;
+                return R.drawable.d_health;
             case "sleep":
-                return R.drawable.sleep;
+                return R.drawable.g_sleep;
         }
 
         return R.drawable.phone;
