@@ -26,24 +26,25 @@ import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
-    //TextView mTextValues;
-    Button mButtonAlarm, mButtonLeft, mButtonRight;
+    //TextView mTextValues, mTextValues2;
+    Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
 
     // sensors
     private static final float SHAKE_THRESHOLD = 1.1f;
     private static final int SHAKE_WAIT_TIME_MS = 250;
     private static final float ROTATION_THRESHOLD = 6.0f;
     private static final int ROTATION_WAIT_TIME_MS = 100;
+    private static final float FIGHTING_THRESHOLD = 12.0f;
 
     private SensorManager mSensorManager;
     private Sensor mAccSensor, mGyroSensor;
-    private int mSensorType;
     private long mShakeTime = 0;
     private long mRotationTime = 0;
 
     private boolean flag_alarm_status = false;
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
+    private boolean flag_fighting = false;
     //
 
     private CommandSetFactory commandSetFactory;
@@ -58,46 +59,25 @@ public class MainActivity extends Activity implements SensorEventListener {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 //mTextValues = (TextView) stub.findViewById(R.id.values);
+                //mTextValues2 = (TextView) stub.findViewById(R.id.values2);
                 mButtonAlarm = (Button) stub.findViewById(R.id.alarm_toggle);
                 mButtonLeft = (Button) stub.findViewById(R.id.rotation_left_toggle);
                 mButtonRight = (Button) stub.findViewById(R.id.rotation_right_toggle);
+                mButtonFight = (Button) stub.findViewById(R.id.fighting_toggle);
             }
         });
 
-        mSensorType = Sensor.TYPE_ACCELEROMETER;//Sensor.TYPE_GYROSCOPE
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
         commandSetFactory = new CommandSetFactory();
-        retrieveCurrentMode();
-    }
 
-    private void retrieveCurrentMode() {
-        RetrofitAdapterProvider.get()
-                .create(Samanda.class)
-                .get()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Action1<Result>() {
-                    @Override
-                    public void call(Result result) {
-                        Log.d("tag", result.toString());
-                        commandSet = commandSetFactory.mode(result.getMode()).context(MainActivity.this).create();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
-                });
     }
-
-    @Override
     public void onResume() {
         super.onResume();
-        //mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -158,6 +138,18 @@ public class MainActivity extends Activity implements SensorEventListener {
         mButtonRight.setText("Rotation right " + (flag_rotate_detection_right ? "off" : "on"));
     }
 
+    public void fightingToggle(View view) {
+        fighting(!flag_fighting);
+    }
+
+    public void fighting(boolean flag) {
+        flag_fighting = flag;
+
+        Toast.makeText(this, "fighting " + (flag_fighting ? "on" : "off"), Toast.LENGTH_SHORT).show();
+
+        mButtonFight.setText("Fighting " + (flag_fighting ? "off" : "on"));
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         // If sensor is unreliable, then just return
@@ -166,17 +158,28 @@ public class MainActivity extends Activity implements SensorEventListener {
             return;
         }
 /*
-        mTextValues.setText(
-                "x = " + Float.toString(event.values[0]) + "\n" +
-                        "y = " + Float.toString(event.values[1]) + "\n" +
-                        "z = " + Float.toString(event.values[2]) + "\n"
-        );
+        if(mTextValues != null) {
+            mTextValues.setText(
+                    "x = " + Float.toString(event.values[0]) + "\n" +
+                            "y = " + Float.toString(event.values[1]) + "\n" +
+                            "z = " + Float.toString(event.values[2]) + "\n"
+            );
+        }
 */
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            detectShake(event);
+            if(flag_alarm_status) {
+                detectShake(event);
+            }
+
+            if(flag_fighting) {
+                detectFight(event);
+            }
         }
-        else if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            detectRotation(event);
+
+        if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            if(flag_rotate_detection_left || flag_rotate_detection_right) {
+                detectRotation(event);
+            }
         }
     }
 
@@ -205,8 +208,16 @@ public class MainActivity extends Activity implements SensorEventListener {
             if(gForce > SHAKE_THRESHOLD) {
                 alarmOff();
             }
-            else {
-            }
+        }
+    }
+
+    private void detectFight(SensorEvent event) {
+        float gX = event.values[0];// / SensorManager.GRAVITY_EARTH;
+        float gY = event.values[1];// / SensorManager.GRAVITY_EARTH;
+        float gZ = event.values[2];// / SensorManager.GRAVITY_EARTH;
+
+        if(Math.abs(gX) > FIGHTING_THRESHOLD) {
+            fighting(false);
         }
     }
 
@@ -219,11 +230,11 @@ public class MainActivity extends Activity implements SensorEventListener {
             // Change background color if rate of rotation around any
             // axis and in any direction exceeds threshold;
             // otherwise, reset the color
-            /*
+/*
             if(Math.abs(event.values[0]) > ROTATION_THRESHOLD ||
                     Math.abs(event.values[1]) > ROTATION_THRESHOLD ||
                     Math.abs(event.values[2]) > ROTATION_THRESHOLD) {
-                    */
+*/
             if(Math.abs(event.values[0]) > ROTATION_THRESHOLD) {
                 //mView.setBackgroundColor(Color.rgb(0, 100, 0));
                 if(flag_rotate_detection_right && event.values[0] > 0) {// right. 안쪽.
@@ -231,8 +242,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 } else if(flag_rotate_detection_left && event.values[0] < 0) {// left. 바깥쪽.
                     rotationLeft(false);
                 }
-            }
-            else {
             }
         }
     }
