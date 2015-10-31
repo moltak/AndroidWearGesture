@@ -17,18 +17,25 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
 
-public class MainActivity extends Activity implements SensorEventListener, CommandSetFactory.Callback, DataApi.DataListener,
+public class MainActivity extends Activity implements
+        SensorEventListener,
+        CommandSetFactory.Callback,
+        DataApi.DataListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -206,7 +213,10 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
                 DataItem item = event.getDataItem();
                 if (item.getUri().getPath().compareTo("/mode") == 0) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    createCommandSet(dataMap.getString("com.samantha.data.mode"));
+                    String data = dataMap.getString("com.samantha.data.mode");
+                    if (data != null) {
+                        createCommandSet(data);
+                    }
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -216,26 +226,26 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
 
     private void createCommandSet(String mode) {
         setText(mode);
-
         commandSet = commandSetFactory.mode(mode).create();
-        Log.d("TAG", mode);
         Log.d("TAG", commandSet.toString());
 
-        if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
-            flag_fighting = true;// detecting on
-        }
+        sendToMobile(mode);
     }
 
-    @Override
-    public void onWorkoutStart() {
-        makeToast("Run ~~~");
-    }
-
-    @Override
-    public void onWorkoutFinish() {
-        makeToast("Welldone ~~~");
-
-        flag_fighting = true;
+    private void sendToMobile(String mode) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", mode);
+        PutDataRequest request = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(googleApiClient, request);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if(result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
+                }
+            }
+        });
     }
 
     public void alarmToggle(View view) {
@@ -401,4 +411,14 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     public void onConnectionSuspended(int i) {}
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {}
+
+    @Override
+    public void onWorkoutStart() {
+
+    }
+
+    @Override
+    public void onWorkoutFinish() {
+
+    }
 }
