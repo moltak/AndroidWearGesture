@@ -218,7 +218,8 @@ public class MainActivity extends Activity implements
                 callWithSound();
             }
         } else if(mode.equals(MODE_ARRAY[MODE_WAKEUP])) {
-            alarmToPhone();
+            //alarmToPhone();
+            alarmMusicOnThePhone();
         } else if(mode.equals(MODE_ARRAY[MODE_SLEEP])) {
             playSleepMusicOnThePhone();
         }
@@ -248,6 +249,16 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void alarmMusicOnThePhone() {
+        if(!flag_alarm) {
+            makeToast("Wake up ~~~");
+
+            requestToMobile("wakeup_on");
+
+            flag_alarm = true;
+        }
+    }
+
     public void alarmToPhone() {
         if(!flag_alarm) {
             makeToast("Wake up ~~~");
@@ -264,10 +275,12 @@ public class MainActivity extends Activity implements
     public void onAlarmFinish() {
         if (flag_alarm) {
             makeToast("Good morning ~~~");
-
+/*
             Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
             cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
             startService(cancelAlarmOperation);
+*/
+            requestToMobile("wakeup_off");
 
             flag_alarm = false;
         }
