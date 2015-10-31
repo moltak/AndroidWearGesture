@@ -86,8 +86,9 @@ public class MainActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                sendToWear("MODE");
             }
         });
     }
@@ -110,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements
                     public void onConnectionFailed(ConnectionResult result) {
                         Log.d(TAG, "onConnectionFailed: " + result);
                     }
-                })
-                        // Request access only to the Wearable API
+                })// Request access only to the Wearable API
                 .addApi(Wearable.API)
                 .build();
     }

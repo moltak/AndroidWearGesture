@@ -26,13 +26,6 @@ import com.google.android.gms.wearable.Wearable;
 
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
-import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
-import net.horde.commandsetlibrary.rest.model.Result;
-import net.horde.commandsetlibrary.rest.service.Samanda;
-
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity implements SensorEventListener,
         DataApi.DataListener,
