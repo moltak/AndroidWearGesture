@@ -1,4 +1,4 @@
-package lge.com.weartesetapp;
+package com.horde.samantha.samantha;
 
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;

@@ -1,4 +1,4 @@
-package lge.com.weartesetapp;
+package com.horde.samantha.samantha;
 
 import com.horde.samantha.samantha.util.ISO8601;
 
