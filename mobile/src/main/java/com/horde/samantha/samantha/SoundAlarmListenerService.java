@@ -20,14 +20,23 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.WearableListenerService;
+import com.horde.samantha.samantha.bus.DataEventBus;
 
 import java.io.IOException;
+
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 /**
  * Listens for disconnection from home device.
@@ -72,13 +81,30 @@ public class SoundAlarmListenerService extends WearableListenerService {
             if (event.getType() == DataEvent.TYPE_DELETED) {
                 Log.i(TAG, event + " deleted");
             } else if (event.getType() == DataEvent.TYPE_CHANGED) {
-                try {
-                    changeAlarm(event);
-                } catch (NullPointerException ex) {
-                    ex.printStackTrace();
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().compareTo("/command") == 0) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                    String command = dataMap.getString("com.samantha.data.command");
+                    sendDataOnBus(command);
+                } else {
+                    try {
+                        changeAlarm(event);
+                    } catch (NullPointerException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         }
+    }
+
+    private void sendDataOnBus(final String command) {
+        new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                Log.d(TAG, "from wear: " + command);
+                DataEventBus.getBus().post(new com.horde.samantha.samantha.bus.DataEvent(command));
+            }
+        }.sendEmptyMessage(0);
     }
 
     private void changeAlarm(DataEvent event) {
