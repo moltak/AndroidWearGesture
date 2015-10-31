@@ -106,7 +106,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onDataEvent(com.horde.samantha.samantha.bus.DataEvent event) {
-        Log.d(TAG, event.getCommand());
+        Log.d(TAG, "from wear: " + event.getCommand());
+        retrieveMode();
     }
 
     private void createGoolgeApiClient() {

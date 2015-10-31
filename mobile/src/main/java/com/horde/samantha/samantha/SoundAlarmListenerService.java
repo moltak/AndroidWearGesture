@@ -98,15 +98,13 @@ public class SoundAlarmListenerService extends WearableListenerService {
     }
 
     private void sendDataOnBus(final String command) {
-        Observable.empty()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object o) {
-                        Log.d(TAG, command);
-                        DataEventBus.getBus().post(new com.horde.samantha.samantha.bus.DataEvent(command));
-                    }
-                });
+        new Handler(getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                Log.d(TAG, "from wear: " + command);
+                DataEventBus.getBus().post(new com.horde.samantha.samantha.bus.DataEvent(command));
+            }
+        }.sendEmptyMessage(0);
     }
 
     private void changeAlarm(DataEvent event) {
