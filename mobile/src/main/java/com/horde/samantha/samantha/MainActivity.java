@@ -28,6 +28,7 @@ import com.horde.samantha.samantha.bus.DataEventBus;
 import com.horde.samantha.samantha.util.PickBulletineImageByMode;
 import com.horde.samantha.samantha.util.PickImageByMode;
 import com.horde.samantha.samantha.util.PickStringByMode;
+import com.horde.samantha.samantha.util.PickTitleByMode;
 import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements
         sharedPreferences.edit()
                 .putInt("image", PickBulletineImageByMode.pick(mode))
                 .putString("title", PickStringByMode.pick(mode))
+                .putString("mode", PickTitleByMode.pick(mode))
                 .commit();
 
         Intent i = new Intent(this, SamanthaWidget.class);

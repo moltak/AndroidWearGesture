@@ -20,6 +20,16 @@
         android:paddingTop="@dimen/main_title_top" >
 
         <TextView
+            android:id="@+id/textViewMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="lg-sans-serif-light"
+            android:includeFontPadding="true"
+            android:text="Card"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/main_title_font" />
+
+        <TextView
             android:id="@+id/textViewTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

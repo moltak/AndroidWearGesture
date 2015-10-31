@@ -19,7 +19,7 @@ public class PickStringByMode {
             case "workout":
                 return "우리 몸의 건강이 가장 중요하잖아요! 오늘도 으쌰으쌰 즐겁게 운동을 해봐요. \n하나둘 하나둘.";
             case "sleep":
-                return "평화로운 밤이 찾아왔네요. 좋은 꿈 꾸세요. 내일 또 봐요. \\n안녕히주무세요.";
+                return "평화로운 밤이 찾아왔네요. 좋은 꿈 꾸세요. 내일 또 봐요. \n안녕히주무세요.";
         }
 
         return "사만다와 인사하세요. 안녕? 사만다?";

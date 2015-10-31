@@ -51,6 +51,7 @@ public class SamanthaWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.samantha_widget);
         views.setTextViewText(R.id.textViewTitle, (String) map.get("title"));
+        views.setTextViewText(R.id.textViewMode, (String) map.get("mode"));
         views.setImageViewResource(R.id.imageViewModeWidgetBackground, (Integer) map.get("image"));
 
         // Instruct the widget manager to update the widget
@@ -59,11 +60,10 @@ public class SamanthaWidget extends AppWidgetProvider {
 
     private Map<String, Object> getImageWithTitle(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences("widget", Context.MODE_PRIVATE);
-        int image = sharedPreferences.getInt("image", R.drawable.sleep);
-        String title = sharedPreferences.getString("title", "title");
         Map<String, Object> map = new HashMap<>();
-        map.put("title", title);
-        map.put("image", image);
+        map.put("title", sharedPreferences.getString("title", "title"));
+        map.put("image", sharedPreferences.getInt("image", R.drawable.sleep));
+        map.put("mode", sharedPreferences.getString("mode", "mode"));
         return map;
     }
 
