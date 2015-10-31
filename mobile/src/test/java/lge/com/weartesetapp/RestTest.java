@@ -36,7 +36,7 @@ public class RestTest {
 
     @Test
     public void simpleTest() throws ExecutionException, InterruptedException {
-        Observable<Result> o = RetrofitAdapterProvider.get()
+        Observable<Result> o = RetrofitAdapterProvider.test(server.url("/data").toString())
                 .create(FakeMockService.class)
                 .get();
 
