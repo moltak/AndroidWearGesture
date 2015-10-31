@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements
     private boolean flag_vibrate = false;
     private boolean flag_call = false;
     private boolean flag_alarm = false;
+    private boolean flag_sleep = false;
 
     private long mRotationDetectTime = 0;
 
@@ -125,9 +126,9 @@ public class MainActivity extends Activity implements
     }
 
     int COUNT = 0;
-    public void requestToMobile(View view) {
+    public void requestToMobile(final String special) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
-        putDataMapReq.getDataMap().putString("com.samantha.data.command", String.valueOf(COUNT));
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", special != null ? special + String.valueOf(COUNT): String.valueOf(COUNT));
         COUNT ++;
 
         PutDataRequest request = putDataMapReq.asPutDataRequest();
@@ -137,7 +138,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if (result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + COUNT);
+                    Log.d(TAG, "Item has been sent: " + (special != null ? special + String.valueOf(COUNT) : String.valueOf(COUNT)));
                 }
             }
         });
@@ -212,9 +213,26 @@ public class MainActivity extends Activity implements
                 callWithVibrate();
             }
         } else if(mode.equals(MODE_ARRAY[MODE_WAKEUP])) {
-            if(!flag_alarm) {
-                alarmToPhone();
-            }
+            alarmToPhone();
+        } else if(mode.equals(MODE_ARRAY[MODE_SLEEP])) {
+            playSleepMusicOnThePhone();
+        }
+    }
+
+    public void playSleepMusicOnThePhone() {
+        if(!flag_sleep) {
+            requestToMobile("sleep_on");
+
+            flag_sleep = true;
+        }
+    }
+
+    @Override
+    public void onSleepFinish() {
+        if(flag_sleep) {
+            requestToMobile("sleep_off");
+
+            flag_sleep = false;
         }
     }
 

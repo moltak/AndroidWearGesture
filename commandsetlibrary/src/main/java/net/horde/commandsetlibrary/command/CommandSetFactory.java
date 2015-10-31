@@ -26,6 +26,7 @@ public class CommandSetFactory {
         void onVibrateFinish();
         void onCallFinish();
         void onAlarmFinish();
+        void onSleepFinish();
     }
 
     public CommandSetFactory mode(String mode) {

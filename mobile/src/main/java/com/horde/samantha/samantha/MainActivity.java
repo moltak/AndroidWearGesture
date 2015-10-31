@@ -1,5 +1,8 @@
 package com.horde.samantha.samantha;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private final String TAG = "Wear";
     private GoogleApiClient googleApiClient;
+
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                count ++;
+                count++;
                 sendToWear(String.valueOf(count));
             }
         });
@@ -106,8 +111,16 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onDataEvent(com.horde.samantha.samantha.bus.DataEvent event) {
-        Log.d(TAG, "from wear: " + event.getCommand());
-        retrieveMode();
+        String command = event.getCommand();
+        Log.d(TAG, "from wear: " + command);
+        if(command.startsWith("sleep_on")) {
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.sleep);
+            mediaPlayer.start();
+        } else if(command.startsWith("sleep_off")) {
+            mediaPlayer.stop();
+        } else {
+            retrieveMode();
+        }
     }
 
     private void createGoolgeApiClient() {
