@@ -1,5 +1,8 @@
 package com.horde.samantha.samantha;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -141,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements
                     @Override
                     public void call(Result result) {
                         ((ImageView) findViewById(R.id.imageViewMode)).setImageResource(PickImageByMode.pick(result.getMode()));
+                        sendToWidget(result.getMode());
                         sendToWear(result.getMode());
                     }
                 }, new Action1<Throwable>() {
@@ -149,6 +153,18 @@ public class MainActivity extends AppCompatActivity implements
                         throwable.printStackTrace();
                     }
                 });
+    }
+
+    private void sendToWidget(String mode) {
+        SharedPreferences sharedPreferences = getSharedPreferences("widget", Context.MODE_PRIVATE);
+        sharedPreferences.edit()
+                .putInt("image", R.drawable.sleep)
+                .putString("title", "dsalkfjsadlkjfsdaklsadfjkldsj")
+                .commit();
+
+        Intent i = new Intent(this, SamanthaWidget.class);
+        i.setAction(SamanthaWidget.SAMANTHA_WIDGET_ACTION);
+        sendBroadcast(i);
     }
 
     private void sendToWear(final String mode) {
