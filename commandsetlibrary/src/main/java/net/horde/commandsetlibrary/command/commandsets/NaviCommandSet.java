@@ -19,7 +19,7 @@ public class NaviCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
-
+                callback.onNaviStart();
             }
         };
     }
@@ -29,7 +29,7 @@ public class NaviCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
-
+                callback.onNaviFinish();
             }
         };
     }

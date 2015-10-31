@@ -118,6 +118,8 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
+
+        generateCommandMode();
     }
 
     public void requestToMobile(View view) {
@@ -142,6 +144,7 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
             case MODE_SLEEP:
                 break;
             case MODE_WORKOUT:
+                flag_fighting = true;
 
                 break;
             case MODE_CALL:
@@ -151,6 +154,8 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
             case MODE_LUNCH:
                 break;
             case MODE_NAVI:
+                flag_rotate_detection_left = true;
+
                 break;
             case MODE_WAKEUP:
                 break;
@@ -165,8 +170,6 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
 /*
     public void setCommandMode(String mode) {
         this.mode = mode;
-
-        setText(mode);
 
         commandSet = commandSetFactory.mode(mode).create();
     }
@@ -223,12 +226,30 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
 
         if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
             flag_fighting = true;// detecting on
+        } else if(mode.equals(MODE_ARRAY[MODE_NAVI])) {
+            flag_rotate_detection_left = true;
         }
+    }
+
+    @Override
+    public void onNaviStart() {
+        makeToast("Drive go ~~~");
+
+        flag_rotate_detection_left = false;
+    }
+
+    @Override
+    public void onNaviFinish() {
+        makeToast("Arrived ~~~");
+
+        flag_rotate_detection_left = true;
     }
 
     @Override
     public void onWorkoutStart() {
         makeToast("Run ~~~");
+
+        flag_fighting = false;
     }
 
     @Override

@@ -19,6 +19,8 @@ public class CommandSetFactory {
     private Context context;
 
     public interface Callback {
+        void onNaviStart();
+        void onNaviFinish();
         void onWorkoutStart();
         void onWorkoutFinish();
     }
