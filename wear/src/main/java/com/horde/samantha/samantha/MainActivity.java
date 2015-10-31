@@ -8,10 +8,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,9 +42,6 @@ public class MainActivity extends Activity implements
 
     TextView mText;
 
-    //TextView mTextValues, mTextValues2;
-    Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
-
     // modes
     private static final int MODE_WAKEUP = 0;
     private static final int MODE_NAVI = 1;
@@ -60,6 +57,7 @@ public class MainActivity extends Activity implements
     private static final int SHAKE_WAIT_TIME_MS = 250;
     private static final float ROTATION_THRESHOLD = 6.0f;
     private static final int ROTATION_WAIT_TIME_MS = 100;
+    private static final int ROTATION_MIN_WAIT_TIME = 2000;// 좌우 한번에 인식되는 것 방지용
     private static final float FIGHTING_THRESHOLD = 12.0f;
 
     private SensorManager mSensorManager;
@@ -71,11 +69,17 @@ public class MainActivity extends Activity implements
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
     private boolean flag_fighting = false;
+    private boolean flag_vibrate = false;
+    private boolean flag_call = false;
+    private boolean flag_alarm = false;
+    private boolean flag_sleep = false;
+
+    private long mRotationDetectTime = 0;
+
+    private Vibrator vibrator;
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
-
-    private String mode = null;
 
     private GoogleApiClient googleApiClient;
 
@@ -89,13 +93,6 @@ public class MainActivity extends Activity implements
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                //mTextValues = (TextView) stub.findViewById(R.id.values);
-                //mTextValues2 = (TextView) stub.findViewById(R.id.values2);
-                mButtonAlarm = (Button) stub.findViewById(R.id.alarm_toggle);
-                mButtonLeft = (Button) stub.findViewById(R.id.rotation_left_toggle);
-                mButtonRight = (Button) stub.findViewById(R.id.rotation_right_toggle);
-                mButtonFight = (Button) stub.findViewById(R.id.fighting_toggle);
-
                 mText = (TextView) stub.findViewById(R.id.text);
                 mText.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -123,15 +120,16 @@ public class MainActivity extends Activity implements
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
     }
 
     int COUNT = 0;
-    public void requestToMobile(View view) {
+    public void requestToMobile(final String special) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
-        putDataMapReq.getDataMap().putString("com.samantha.data.command", String.valueOf(COUNT));
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", special != null ? special + String.valueOf(COUNT): String.valueOf(COUNT));
         COUNT ++;
 
         PutDataRequest request = putDataMapReq.asPutDataRequest();
@@ -141,7 +139,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if (result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + COUNT);
+                    Log.d(TAG, "Item has been sent: " + (special != null ? special + String.valueOf(COUNT) : String.valueOf(COUNT)));
                 }
             }
         });
@@ -205,9 +203,21 @@ public class MainActivity extends Activity implements
         Log.d("TAG", commandSet.toString());
 
         if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
-            fighting(true);
+            flag_fighting = true;
         } else if(mode.equals(MODE_ARRAY[MODE_NAVI])) {
-            rotationLeft(true);
+            flag_rotate_detection_left = true;
+        } else if(mode.equals(MODE_ARRAY[MODE_VIBRATE])) {
+            if(!flag_vibrate) {
+                wakeWithVibrate();
+            }
+        } else if(mode.equals(MODE_ARRAY[MODE_CALL])) {
+            if(!flag_call) {
+                callWithVibrate();
+            }
+        } else if(mode.equals(MODE_ARRAY[MODE_WAKEUP])) {
+            alarmToPhone();
+        } else if(mode.equals(MODE_ARRAY[MODE_SLEEP])) {
+            playSleepMusicOnThePhone();
         }
     }
 
@@ -215,120 +225,126 @@ public class MainActivity extends Activity implements
         ((ImageView) findViewById(R.id.imageView)).setImageResource(PickImageByMode.pick(mode));
     }
 
+    public void playSleepMusicOnThePhone() {
+        if(!flag_sleep) {
+            requestToMobile("sleep_on");
+            flag_sleep = true;
+        }
+    }
+
+    @Override
+    public void onSleepFinish() {
+        if(flag_sleep) {
+            requestToMobile("sleep_off");
+
+            flag_sleep = false;
+        }
+    }
+
+    public void alarmToPhone() {
+        if(!flag_alarm) {
+            makeToast("Wake up ~~~");
+
+            Intent toggleAlarmOperation = new Intent(this, FindPhoneService.class);
+            toggleAlarmOperation.setAction(FindPhoneService.ACTION_TOGGLE_ALARM);
+            startService(toggleAlarmOperation);
+
+            flag_alarm = true;
+        }
+    }
+
+    @Override
+    public void onAlarmFinish() {
+        if(flag_alarm) {
+            makeToast("Good morning ~~~");
+
+            Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
+            cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
+            startService(cancelAlarmOperation);
+
+            flag_alarm = false;
+        }
+    }
+
+    public void callWithVibrate() {
+        makeToast("Phone call ~~~");
+
+        long[] vibrationPattern = {0, 500, 50, 300};
+        final int indexInPatternToRepeat = 0;// repeat
+        vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+
+        //TODO: let mobile reject another call
+        //TODO: change image to call screen
+
+        flag_call = true;
+    }
+
+    @Override
+    public void onCallFinish() {
+        if(flag_call) {
+            makeToast("Saved life ~~~");
+
+            vibrator.cancel();
+
+            //TODO: back to previous screen
+
+            flag_call = false;
+        }
+    }
+
+    public void wakeWithVibrate() {
+        makeToast("Wake up ~~~");
+
+        long[] vibrationPattern = {0, 500, 50, 300};
+        final int indexInPatternToRepeat = 0;// repeat
+        vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+
+        flag_vibrate = true;
+    }
+
+    @Override
+    public void onVibrateFinish() {
+        if(flag_vibrate) {
+            makeToast("Good job ~~~");
+
+            vibrator.cancel();
+
+            flag_vibrate = false;
+        }
+    }
+
     @Override
     public void onNaviStart() {
-        makeToast("Drive go ~~~");
+        mRotationDetectTime = System.currentTimeMillis();
 
-        rotationLeft(false);
+        makeToast("Drive go ~~~");
+        flag_rotate_detection_left = false;
+        flag_rotate_detection_right = true;
     }
 
     @Override
     public void onNaviFinish() {
         makeToast("Arrived ~~~");
-        rotationLeft(true);
+        //flag_rotate_detection_left = true;
+        flag_rotate_detection_right = false;
     }
 
     @Override
     public void onWorkoutStart() {
         makeToast("Run ~~~");
-        fighting(false);
+        flag_fighting = false;
     }
 
     @Override
     public void onWorkoutFinish() {
         makeToast("Welldone ~~~");
-
-        fighting(true);
-    }
-
-    public void alarmToggle(View view) {
-        if(flag_alarm_status) {
-            alarmOff();
-        } else {
-            alarmOn();
-        }
-
-        flag_alarm_status = !flag_alarm_status;
-
-        mButtonAlarm.setText("Alarm " + (flag_alarm_status ? "off" : "on"));
-    }
-
-    public void alarmOn() {
-        Intent toggleAlarmOperation = new Intent(this, FindPhoneService.class);
-        toggleAlarmOperation.setAction(FindPhoneService.ACTION_TOGGLE_ALARM);
-        startService(toggleAlarmOperation);
-    }
-
-    public void alarmOff() {
-        Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
-        cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
-        startService(cancelAlarmOperation);
-
-        commandSet.getWristCoverCommand().execute();
-    }
-
-    public void rotationLeftToggle(View view) {
-        rotationLeft(!flag_rotate_detection_left);
-    }
-
-    public void rotationLeft(boolean flag) {
-        if(flag) {
-            flag_rotate_detection_right = false;
-            flag_fighting = false;
-        }
-
-        flag_rotate_detection_left = flag;
-
-        mButtonLeft.setText("Rotation left " + (flag_rotate_detection_left ? "off" : "on"));
-
-        if(!flag) {
-            commandSet.getWristLeftCommand().execute();
-        }
-    }
-
-    public void rotationRightToggle(View view) {
-        rotationRight(!flag_rotate_detection_right);
-    }
-
-    public void rotationRight(boolean flag) {
-        if(flag) {
-            flag_rotate_detection_left = false;
-            flag_fighting = false;
-        }
-
-        flag_rotate_detection_right = flag;
-
-        mButtonRight.setText("Rotation right " + (flag_rotate_detection_right ? "off" : "on"));
-
-        if(!flag) {
-            commandSet.getWristRightCommand().execute();
-        }
-    }
-
-    public void fightingToggle(View view) {
-        fighting(!flag_fighting);
-    }
-
-    public void fighting(boolean flag) {
-        if(flag) {
-            flag_rotate_detection_left = false;
-            flag_rotate_detection_right = false;
-        }
-
-        flag_fighting = flag;
-
-        mButtonFight.setText("Fighting " + (flag_fighting ? "off" : "on"));
-
-        if(!flag) {
-            commandSet.getShakeCommand().execute();
-        }
+        //fighting(true);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         // If sensor is unreliable, then just return
-        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE)
-        {
+        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
             return;
         }
 
@@ -371,7 +387,7 @@ public class MainActivity extends Activity implements
             float gForce = (float)Math.sqrt(gX * gX + gY * gY + gZ * gZ);
 
             if(gForce > SHAKE_THRESHOLD) {
-                alarmOff();
+                //alarmOff();
             }
         }
     }
@@ -382,7 +398,7 @@ public class MainActivity extends Activity implements
         float gZ = event.values[2];// / SensorManager.GRAVITY_EARTH;
 
         if(Math.abs(gX) > FIGHTING_THRESHOLD) {
-            fighting(false);
+            commandSet.getShakeCommand().execute();
         }
     }
 
@@ -392,14 +408,16 @@ public class MainActivity extends Activity implements
         if((now - mRotationTime) > ROTATION_WAIT_TIME_MS) {
             mRotationTime = now;
 
+            //mText.setText(String.valueOf(event.values[0]));
+
             // Change background color if rate of rotation around any
             // axis and in any direction exceeds threshold;
             // otherwise, reset the color
-            if(Math.abs(event.values[0]) > ROTATION_THRESHOLD) {
+            if((now - mRotationDetectTime) > ROTATION_MIN_WAIT_TIME && Math.abs(event.values[0]) > ROTATION_THRESHOLD) {
                 if(flag_rotate_detection_right && event.values[0] > 0) {// right. 안쪽.
-                    rotationRight(false);
+                    commandSet.getWristRightCommand().execute();
                 } else if(flag_rotate_detection_left && event.values[0] < 0) {// left. 바깥쪽.
-                    rotationLeft(false);
+                    commandSet.getWristLeftCommand().execute();
                 }
             }
         }

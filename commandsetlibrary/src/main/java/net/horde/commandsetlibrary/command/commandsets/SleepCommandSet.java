@@ -49,7 +49,7 @@ public class SleepCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
-
+                callback.onSleepFinish();
             }
         };
     }

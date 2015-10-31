@@ -49,7 +49,7 @@ public class VibrateCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
-
+                callback.onVibrateFinish();
             }
         };
     }
