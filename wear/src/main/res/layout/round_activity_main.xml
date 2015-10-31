@@ -7,10 +7,12 @@
     android:gravity="center"
     tools:context=".MainActivity" tools:deviceIds="wear_round">
 
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/white"/>
 
     <TextView
         android:id="@+id/text"
