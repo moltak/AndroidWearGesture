@@ -1,9 +1,6 @@
 package com.horde.samantha.samantha;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -12,15 +9,20 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.RelativeSizeSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import net.horde.commandsetlibrary.command.CommandSet;
+import net.horde.commandsetlibrary.command.CommandSetFactory;
+import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
+import net.horde.commandsetlibrary.rest.model.Result;
+import net.horde.commandsetlibrary.rest.service.Samanda;
+
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends Activity implements SensorEventListener {
 
@@ -44,6 +46,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean flag_rotate_detection_right = false;
     //
 
+    private CommandSetFactory commandSetFactory;
+    private CommandSet commandSet;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +69,29 @@ public class MainActivity extends Activity implements SensorEventListener {
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        // my libary
+        commandSetFactory = new CommandSetFactory();
+        retrieveCurrentMode();
+    }
+
+    private void retrieveCurrentMode() {
+        RetrofitAdapterProvider.get()
+                .create(Samanda.class)
+                .get()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Action1<Result>() {
+                    @Override
+                    public void call(Result result) {
+                        Log.d("tag", result.toString());
+                        commandSet = commandSetFactory.mode(result.getMode()).context(MainActivity.this).create();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                });
     }
 
     @Override
