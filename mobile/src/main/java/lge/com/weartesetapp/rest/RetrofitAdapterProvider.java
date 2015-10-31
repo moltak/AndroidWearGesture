@@ -1,4 +1,4 @@
-package lge.com.weartesetapp.data;
+package lge.com.weartesetapp.rest;
 
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;

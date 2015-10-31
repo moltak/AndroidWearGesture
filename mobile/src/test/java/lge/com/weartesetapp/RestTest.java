@@ -8,8 +8,9 @@ import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-import lge.com.weartesetapp.data.RetrofitAdapterProvider;
-import retrofit.http.GET;
+import lge.com.weartesetapp.rest.RetrofitAdapterProvider;
+import lge.com.weartesetapp.rest.model.Result;
+import lge.com.weartesetapp.rest.service.Samanda;
 import rx.Observable;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -37,7 +38,7 @@ public class RestTest {
     @Test
     public void simpleTest() throws ExecutionException, InterruptedException {
         Observable<Result> o = RetrofitAdapterProvider.test(server.url("/data").toString())
-                .create(FakeMockService.class)
+                .create(Samanda.class)
                 .get();
 
         Result result = o.toBlocking().toFuture().get();
@@ -45,31 +46,5 @@ public class RestTest {
         assertThat(result.getMode(), is("mode"));
         assertThat(result.getLat(), is(1.0));
         assertThat(result.getLng(), is(1.0));
-    }
-
-    interface FakeMockService {
-        @GET("/data")
-        Observable<Result> get();
-    }
-
-    public class Result {
-        String time, mode;
-        double lat, lng;
-
-        public String getTime() {
-            return time;
-        }
-
-        public String getMode() {
-            return mode;
-        }
-
-        public double getLat() {
-            return lat;
-        }
-
-        public double getLng() {
-            return lng;
-        }
     }
 }
