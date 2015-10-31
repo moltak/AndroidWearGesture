@@ -23,6 +23,7 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.horde.samantha.samantha.bus.DataEventBus;
 import com.horde.samantha.samantha.util.PickImageByMode;
+import com.horde.samantha.samantha.util.ThirdpartyExectue;
 import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
@@ -113,6 +114,16 @@ public class MainActivity extends AppCompatActivity implements
             mediaPlayer.start();
         } else if(command.startsWith("wakeup_off")) {
             mediaPlayer.stop();
+        } else if(command.startsWith("lunch_on")) {// off는 특별히 없다.
+            ThirdpartyExectue.runMangoplate(this);
+        } else if(command.startsWith("navi_on")) {
+            ThirdpartyExectue.runNavigation(this);
+        } else if(command.startsWith("navi_off")) {
+            ThirdpartyExectue.killNavigation(this);
+        } else if(command.startsWith("workout_on")) {
+            ThirdpartyExectue.runRuntastic(this);
+        } else if(command.startsWith("workout_off")) {
+            ThirdpartyExectue.killRuntastic(this);
         } else {
             retrieveMode();
         }

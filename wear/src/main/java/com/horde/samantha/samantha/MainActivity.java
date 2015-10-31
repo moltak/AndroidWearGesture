@@ -121,6 +121,8 @@ public class MainActivity extends Activity implements
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         // my libary
@@ -130,8 +132,8 @@ public class MainActivity extends Activity implements
     int COUNT = 0;
     public void requestToMobile(final String special) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
-        putDataMapReq.getDataMap().putString("com.samantha.data.command", special != null ? special + String.valueOf(COUNT): String.valueOf(COUNT));
-        COUNT ++;
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", special != null ? special + String.valueOf(COUNT) : String.valueOf(COUNT));
+        COUNT++;
 
         PutDataRequest request = putDataMapReq.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult =
@@ -145,20 +147,14 @@ public class MainActivity extends Activity implements
             }
         });
     }
-    /*
-    public void setText(String text) {
-        if(mText != null) {
-            mText.setText(text);
-        }
-    }
-    */
+
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
         googleApiClient.connect();
-        mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -170,12 +166,18 @@ public class MainActivity extends Activity implements
     @Override
     public void onPause() {
         Wearable.DataApi.removeListener(googleApiClient, this);
-        mSensorManager.unregisterListener(this);
+        //mSensorManager.unregisterListener(this);
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        mSensorManager.unregisterListener(this);
+        super.onDestroy();
+    }
+
     public void makeToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -222,6 +224,8 @@ public class MainActivity extends Activity implements
             alarmMusicOnThePhone();
         } else if(mode.equals(MODE_ARRAY[MODE_SLEEP])) {
             playSleepMusicOnThePhone();
+        } else if(mode.equals(MODE_ARRAY[MODE_LUNCH])) {
+            requestToMobile("lunch_on");
         }
     }
 
@@ -251,7 +255,7 @@ public class MainActivity extends Activity implements
 
     public void alarmMusicOnThePhone() {
         if(!flag_alarm) {
-            makeToast("Wake up ~~~");
+            //makeToast("Wake up ~~~");
 
             requestToMobile("wakeup_on");
 
@@ -274,7 +278,7 @@ public class MainActivity extends Activity implements
     @Override
     public void onAlarmFinish() {
         if (flag_alarm) {
-            makeToast("Good morning ~~~");
+            //makeToast("Good morning ~~~");
 /*
             Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
             cancelAlarmOperation.setAction(FindPhoneService.ACTION_CANCEL_ALARM);
@@ -349,27 +353,31 @@ public class MainActivity extends Activity implements
     public void onNaviStart() {
         mRotationDetectTime = System.currentTimeMillis();
 
-        makeToast("Drive go ~~~");
+        //makeToast("Drive go ~~~");
+        requestToMobile("navi_on");
         flag_rotate_detection_left = false;
         flag_rotate_detection_right = true;
     }
 
     @Override
     public void onNaviFinish() {
-        makeToast("Arrived ~~~");
+        //makeToast("Arrived ~~~");
+        requestToMobile("navi_off");
         //flag_rotate_detection_left = true;
         flag_rotate_detection_right = false;
     }
 
     @Override
     public void onWorkoutStart() {
-        makeToast("Run ~~~");
+        //makeToast("Run ~~~");
+        requestToMobile("workout_on");
         flag_fighting = false;
     }
 
     @Override
     public void onWorkoutFinish() {
-        makeToast("Welldone ~~~");
+        //makeToast("Welldone ~~~");
+        requestToMobile("workout_off");
         //fighting(true);
     }
 
