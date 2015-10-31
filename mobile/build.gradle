@@ -26,6 +26,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
+
+    // added by kh
+    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+
+    testCompile 'com.squareup.okhttp:mockwebserver:2.5.0'
 }
