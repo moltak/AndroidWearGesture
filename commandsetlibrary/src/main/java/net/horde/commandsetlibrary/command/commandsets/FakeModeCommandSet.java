@@ -1,6 +1,7 @@
 package net.horde.commandsetlibrary.command.commandsets;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.horde.commandsetlibrary.command.Command;
 import net.horde.commandsetlibrary.command.CommandSet;
@@ -23,6 +24,7 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+                Log.d("CommandSet", "Fake: wristLeft");
             }
         };
     }
@@ -32,6 +34,7 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+                Log.d("CommandSet", "Fake: wristRight");
             }
         };
     }
@@ -41,6 +44,7 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+                Log.d("CommandSet", "Fake: shake");
             }
         };
     }
@@ -50,6 +54,7 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+                Log.d("CommandSet", "Fake: wristCover");
             }
         };
     }
@@ -59,6 +64,7 @@ public class FakeModeCommandSet implements CommandSet {
         return new Command() {
             @Override
             public void execute() {
+                Log.d("CommandSet", "Fake: heart");
             }
         };
     }
