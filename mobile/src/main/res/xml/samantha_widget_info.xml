@@ -3,5 +3,5 @@
     android:initialLayout="@layout/samantha_widget"
     android:updatePeriodMillis="60000"
     android:resizeMode="vertical"
-    android:widgetCategory="0x100" >
+    android:widgetCategory="0x100">
 </appwidget-provider>

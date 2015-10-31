@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements
     private void sendToWidget(String mode) {
         SharedPreferences sharedPreferences = getSharedPreferences("widget", Context.MODE_PRIVATE);
         sharedPreferences.edit()
-                .putInt("image", R.drawable.sleep)
+                .putInt("image", R.drawable.a_alarm)
                 .putString("title", "dsalkfjsadlkjfsdaklsadfjkldsj")
                 .commit();
 
