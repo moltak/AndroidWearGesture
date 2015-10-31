@@ -1,4 +1,4 @@
-package lge.com.weartesetapp.rest.model;
+package net.horde.commandsetlibrary.rest.model;
 
 /**
  * Created by engeng on 10/31/15.
@@ -21,5 +21,15 @@ public class Result {
 
     public double getLng() {
         return lng;
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "time='" + time + '\'' +
+                ", mode='" + mode + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                '}';
     }
 }

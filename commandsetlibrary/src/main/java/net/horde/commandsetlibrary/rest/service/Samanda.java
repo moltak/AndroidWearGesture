@@ -1,6 +1,7 @@
-package lge.com.weartesetapp.rest.service;
+package net.horde.commandsetlibrary.rest.service;
 
-import lge.com.weartesetapp.rest.model.Result;
+import net.horde.commandsetlibrary.rest.model.Result;
+
 import retrofit.http.GET;
 import rx.Observable;
 

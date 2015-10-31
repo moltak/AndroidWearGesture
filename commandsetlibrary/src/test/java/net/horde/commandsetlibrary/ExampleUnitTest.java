@@ -1,4 +1,4 @@
-package lge.com.weartesetapp;
+package net.horde.commandsetlibrary;
 
 import org.junit.Test;
 

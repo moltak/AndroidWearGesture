@@ -1,4 +1,4 @@
-package lge.com.weartesetapp.rest;
+package net.horde.commandsetlibrary.rest;
 
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
@@ -10,7 +10,7 @@ import retrofit.client.OkClient;
 public class RetrofitAdapterProvider {
     public static RestAdapter get() {
         return new RestAdapter.Builder()
-                .setEndpoint("http://172.20.3.103:10001")
+                .setEndpoint("http://agileup.ml:8888/")
                 .setClient(new OkClient())
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build();
