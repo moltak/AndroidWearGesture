@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/buttonNavigation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="navigation"/>
+    <ImageView
+        android:id="@+id/imageViewMode"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/alarm"/>
 
-    <Button
-        android:id="@+id/buttonRuntastic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="runtastic"/>
-
-    <Button
-        android:id="@+id/buttonMangoplate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="mangoplate"/>
-
-</LinearLayout>
+</RelativeLayout>
