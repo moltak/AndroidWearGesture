@@ -210,7 +210,8 @@ public class MainActivity extends Activity implements
             }
         } else if(mode.equals(MODE_ARRAY[MODE_CALL])) {
             if(!flag_call) {
-                callWithVibrate();
+                //callWithVibrate();
+                callWithSound();
             }
         } else if(mode.equals(MODE_ARRAY[MODE_WAKEUP])) {
             alarmToPhone();
@@ -221,6 +222,8 @@ public class MainActivity extends Activity implements
 
     public void playSleepMusicOnThePhone() {
         if(!flag_sleep) {
+            makeToast("Night music ~~~");
+
             requestToMobile("sleep_on");
 
             flag_sleep = true;
@@ -230,6 +233,8 @@ public class MainActivity extends Activity implements
     @Override
     public void onSleepFinish() {
         if(flag_sleep) {
+            makeToast("Good night ~~~");
+
             requestToMobile("sleep_off");
 
             flag_sleep = false;
@@ -250,7 +255,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onAlarmFinish() {
-        if(flag_alarm) {
+        if (flag_alarm) {
             makeToast("Good morning ~~~");
 
             Intent cancelAlarmOperation = new Intent(this, FindPhoneService.class);
@@ -259,6 +264,17 @@ public class MainActivity extends Activity implements
 
             flag_alarm = false;
         }
+    }
+
+    public void callWithSound() {
+        makeToast("Phone call ~~~");
+
+        requestToMobile("call_on");
+
+        //TODO: let mobile reject another call
+        //TODO: change image to call screen
+
+        flag_call = true;
     }
 
     public void callWithVibrate() {
@@ -279,7 +295,8 @@ public class MainActivity extends Activity implements
         if(flag_call) {
             makeToast("Saved life ~~~");
 
-            vibrator.cancel();
+            //vibrator.cancel();
+            requestToMobile("call_off");
 
             //TODO: back to previous screen
 

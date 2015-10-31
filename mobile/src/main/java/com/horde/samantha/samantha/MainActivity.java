@@ -118,6 +118,11 @@ public class MainActivity extends AppCompatActivity implements
             mediaPlayer.start();
         } else if(command.startsWith("sleep_off")) {
             mediaPlayer.stop();
+        } else if(command.startsWith("call_on")) {
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.ringing);
+            mediaPlayer.start();
+        } else if(command.startsWith("call_off")) {
+            mediaPlayer.stop();
         } else {
             retrieveMode();
         }
