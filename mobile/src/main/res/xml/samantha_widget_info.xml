@@ -2,7 +2,6 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:initialLayout="@layout/samantha_widget"
     android:updatePeriodMillis="60000"
-    android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="vertical"
     android:widgetCategory="0x100" >
 </appwidget-provider>

@@ -40,7 +40,8 @@ public class MainActivity extends Activity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    TextView mText;
+    //TextView mText;
+    ImageView mImageView;
 
     // modes
     private static final int MODE_WAKEUP = 0;
@@ -93,14 +94,14 @@ public class MainActivity extends Activity implements
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                mText = (TextView) stub.findViewById(R.id.text);
-                mText.setOnClickListener(new View.OnClickListener() {
+                mImageView = (ImageView) stub.findViewById(R.id.imageView);
+                mImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         requestToMobile(null);
                     }
                 });
-                mText.setOnLongClickListener(new View.OnLongClickListener() {
+                mImageView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
                         commandSet.getWristCoverCommand().execute();
@@ -144,12 +145,13 @@ public class MainActivity extends Activity implements
             }
         });
     }
+    /*
     public void setText(String text) {
         if(mText != null) {
             mText.setText(text);
         }
     }
-
+    */
     @Override
     public void onResume() {
         super.onResume();
@@ -197,7 +199,7 @@ public class MainActivity extends Activity implements
     }
 
     private void createCommandSet(String mode) {
-        setText(mode);
+        //setText(mode);
         setImage(mode);
         commandSet = commandSetFactory.mode(mode).create();
         Log.d("TAG", commandSet.toString());
@@ -384,7 +386,6 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     // References:
