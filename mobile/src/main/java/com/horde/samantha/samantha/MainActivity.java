@@ -21,6 +21,8 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.horde.samantha.samantha.bus.DataEventBus;
+import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
 import net.horde.commandsetlibrary.rest.model.Result;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        DataEventBus.getBus().register(this);
         createFloatingActionButton();
         createGoolgeApiClient();
         retrieveMode();
@@ -66,6 +69,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onDestroy() {
+        DataEventBus.getBus().unregister(this);
+        super.onDestroy();
+    }
+
+    @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
@@ -81,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    int count = 1;
     private void createFloatingActionButton() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -88,8 +98,16 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
+                count ++;
+                sendToWear(String.valueOf(count));
             }
         });
+    }
+
+    @Subscribe
+    public void onDataEvent(com.horde.samantha.samantha.bus.DataEvent event) {
+        Log.d(TAG, "from wear: " + event.getCommand());
+        retrieveMode();
     }
 
     private void createGoolgeApiClient() {
@@ -134,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements
                 });
     }
 
-    private void sendToWear(String mode) {
+    private void sendToWear(final String mode) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/mode");
         putDataMapReq.getDataMap().putString("com.samantha.data.mode", mode);
         PutDataRequest request = putDataMapReq.asPutDataRequest();
@@ -144,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if(result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
+                    Log.d(TAG, "Item has been sent: " + mode);
                 }
             }
         });

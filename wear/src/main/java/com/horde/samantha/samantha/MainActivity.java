@@ -17,18 +17,25 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
 
-public class MainActivity extends Activity implements SensorEventListener, CommandSetFactory.Callback, DataApi.DataListener,
+public class MainActivity extends Activity implements
+        SensorEventListener,
+        CommandSetFactory.Callback,
+        DataApi.DataListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
@@ -118,8 +125,6 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
-
-        generateCommandMode();
     }
 
     public void requestToMobile(View view) {
@@ -209,7 +214,10 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
                 DataItem item = event.getDataItem();
                 if (item.getUri().getPath().compareTo("/mode") == 0) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                    createCommandSet(dataMap.getString("com.samantha.data.mode"));
+                    String data = dataMap.getString("com.samantha.data.mode");
+                    if (data != null) {
+                        createCommandSet(data);
+                    }
                 }
             } else if (event.getType() == DataEvent.TYPE_DELETED) {
                 // DataItem deleted
@@ -219,15 +227,13 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
 
     private void createCommandSet(String mode) {
         setText(mode);
-
         commandSet = commandSetFactory.mode(mode).create();
-        Log.d("TAG", mode);
         Log.d("TAG", commandSet.toString());
 
         if(mode.equals(MODE_ARRAY[MODE_WORKOUT])) {
-            flag_fighting = true;// detecting on
+            fighting(true);
         } else if(mode.equals(MODE_ARRAY[MODE_NAVI])) {
-            flag_rotate_detection_left = true;
+            rotationLeft(true);
         }
     }
 
@@ -235,28 +241,46 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     public void onNaviStart() {
         makeToast("Drive go ~~~");
 
-        flag_rotate_detection_left = false;
+        rotationLeft(false);
     }
 
     @Override
     public void onNaviFinish() {
         makeToast("Arrived ~~~");
 
-        flag_rotate_detection_left = true;
+        rotationLeft(true);
     }
 
     @Override
     public void onWorkoutStart() {
         makeToast("Run ~~~");
 
-        flag_fighting = false;
+        fighting(false);
+
+        sendToMobile(mode);
     }
 
     @Override
     public void onWorkoutFinish() {
         makeToast("Welldone ~~~");
 
-        flag_fighting = true;
+        fighting(true);
+    }
+
+    private void sendToMobile(String mode) {
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/command");
+        putDataMapReq.getDataMap().putString("com.samantha.data.command", mode);
+        PutDataRequest request = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(googleApiClient, request);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(final DataApi.DataItemResult result) {
+                if (result.getStatus().isSuccess()) {
+                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
+                }
+            }
+        });
     }
 
     public void alarmToggle(View view) {
@@ -290,9 +314,12 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     }
 
     public void rotationLeft(boolean flag) {
-        flag_rotate_detection_left = flag;
+        if(flag) {
+            flag_rotate_detection_right = false;
+            flag_fighting = false;
+        }
 
-        //Toast.makeText(this, "rotate left " + (flag_rotate_detection_left ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        flag_rotate_detection_left = flag;
 
         mButtonLeft.setText("Rotation left " + (flag_rotate_detection_left ? "off" : "on"));
 
@@ -306,9 +333,12 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     }
 
     public void rotationRight(boolean flag) {
-        flag_rotate_detection_right = flag;
+        if(flag) {
+            flag_rotate_detection_left = false;
+            flag_fighting = false;
+        }
 
-        //Toast.makeText(this, "rotate right " + (flag_rotate_detection_right ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        flag_rotate_detection_right = flag;
 
         mButtonRight.setText("Rotation right " + (flag_rotate_detection_right ? "off" : "on"));
 
@@ -322,9 +352,12 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
     }
 
     public void fighting(boolean flag) {
-        flag_fighting = flag;
+        if(flag) {
+            flag_rotate_detection_left = false;
+            flag_rotate_detection_right = false;
+        }
 
-        //Toast.makeText(this, "fighting " + (flag_fighting ? "on" : "off"), Toast.LENGTH_SHORT).show();
+        flag_fighting = flag;
 
         mButtonFight.setText("Fighting " + (flag_fighting ? "off" : "on"));
 
@@ -391,7 +424,7 @@ public class MainActivity extends Activity implements SensorEventListener, Comma
         float gZ = event.values[2];// / SensorManager.GRAVITY_EARTH;
 
         if(Math.abs(gX) > FIGHTING_THRESHOLD) {
-            flag_fighting = false;
+            fighting(false);
         }
     }
 
