@@ -19,8 +19,8 @@ public class ThirdpartyExectue {
     }
 
     public static void killNavigation(Activity activity) {
-        ActivityManager mActivityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
-        mActivityManager.killBackgroundProcesses("com.google.android.apps.maps");
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.google.android.apps.maps");
     }
 
     public static void runRuntastic(Activity activity) {
@@ -28,8 +28,18 @@ public class ThirdpartyExectue {
         activity.startActivity(launchIntent);
     }
 
+    public static void killRuntastic(Activity activity) {
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.runtastic.android");
+    }
+
     public static void runMangoplate(Activity activity) {
         Intent launchIntent = activity.getPackageManager().getLaunchIntentForPackage("com.mangoplate");
         activity.startActivity(launchIntent);
+    }
+
+    public static void killMangoplate(Activity activity) {
+        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.killBackgroundProcesses("com.mangoplate");
     }
 }
