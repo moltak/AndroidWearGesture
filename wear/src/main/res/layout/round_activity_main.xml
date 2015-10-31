@@ -20,48 +20,5 @@
         android:layout_height="wrap_content"
         android:text = "Request"
         android:onClick ="requestToMobile" />
-<!--
-    <TextView
-        android:id="@+id/values"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"/>
-
-    <TextView
-        android:id="@+id/values2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
--->
-    <Button
-        android:id="@+id/alarm_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Alarm on"
-        android:onClick ="alarmToggle"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/rotation_left_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Rotation left on"
-        android:onClick ="rotationLeftToggle"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/rotation_right_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Rotation right on"
-        android:onClick ="rotationRightToggle"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/fighting_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text = "Fighting on"
-        android:onClick ="fightingToggle"
-        android:visibility="gone" />
 
 </LinearLayout>
