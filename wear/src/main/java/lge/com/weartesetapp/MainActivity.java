@@ -7,6 +7,7 @@ import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 
+import net.horde.commandsetlibrary.command.CommandSet;
 import net.horde.commandsetlibrary.command.CommandSetFactory;
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
 import net.horde.commandsetlibrary.rest.model.Result;
@@ -19,6 +20,7 @@ import rx.schedulers.Schedulers;
 public class MainActivity extends Activity {
 
     private CommandSetFactory commandSetFactory;
+    private CommandSet commandSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,10 @@ public class MainActivity extends Activity {
 
         // my libary
         commandSetFactory = new CommandSetFactory();
+        retrieveCurrentMode();
+    }
+
+    private void retrieveCurrentMode() {
         RetrofitAdapterProvider.get()
                 .create(Samanda.class)
                 .get()
@@ -48,6 +54,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void call(Result result) {
                         Log.d("tag", result.toString());
+                        commandSet = commandSetFactory.mode(result.getMode()).context(MainActivity.this).create();
                     }
                 }, new Action1<Throwable>() {
                     @Override
