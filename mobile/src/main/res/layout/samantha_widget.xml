@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:showDividers="end" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/provider_height"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/main_title_top"
+        android:paddingLeft="@dimen/text_left"
+        android:paddingRight="@dimen/text_left"
+        android:paddingTop="@dimen/main_title_top" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="lg-sans-serif-light"
+            android:includeFontPadding="true"
+            android:text="Card"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/main_title_font" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/sub_title_top"
+            android:includeFontPadding="true"
+            android:text="You can create a (Smart Bulletin) provider of a variable height with cards.\nClick &apos;ADD&apos; to add a card and click &apos;REMOVE ALL&apos; to remove all cards you have."
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/sub_title_font" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/card_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</LinearLayout>
