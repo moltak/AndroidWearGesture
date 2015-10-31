@@ -15,7 +15,7 @@ import net.horde.commandsetlibrary.command.commandsets.WorkoutCommandSet;
  * Created by engeng on 10/31/15.
  */
 public class CommandSetFactory {
-    private String mode;
+    private String mode = "init";
     private Context context;
 
     public CommandSetFactory mode(String mode) {
