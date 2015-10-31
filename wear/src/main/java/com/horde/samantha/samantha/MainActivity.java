@@ -12,6 +12,7 @@ import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.horde.commandsetlibrary.command.CommandSet;
@@ -24,10 +25,22 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity implements SensorEventListener, CommandSetFactory.Callback {
+
+    TextView mText;
 
     //TextView mTextValues, mTextValues2;
     Button mButtonAlarm, mButtonLeft, mButtonRight, mButtonFight;
+
+    // modes
+    private static final int MODE_WAKEUP = 0;
+    private static final int MODE_NAVI = 1;
+    private static final int MODE_LUNCH = 2;
+    private static final int MODE_VIBRATE = 3;
+    private static final int MODE_CALL = 4;
+    private static final int MODE_WORKOUT = 5;
+    private static final int MODE_SLEEP = 6;
+    private static final String[] MODE_ARRAY = new String[]{"wakeup", "navi", "lunch", "vibrate", "call", "workout", "sleep"};
 
     // sensors
     private static final float SHAKE_THRESHOLD = 1.1f;
@@ -44,11 +57,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     private boolean flag_alarm_status = false;
     private boolean flag_rotate_detection_left = false;
     private boolean flag_rotate_detection_right = false;
-    private boolean flag_fighting = false;
+    private boolean flag_fighting = true;
     //
 
     private CommandSetFactory commandSetFactory;
     private CommandSet commandSet;
+
+    private String mode = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +79,22 @@ public class MainActivity extends Activity implements SensorEventListener {
                 mButtonLeft = (Button) stub.findViewById(R.id.rotation_left_toggle);
                 mButtonRight = (Button) stub.findViewById(R.id.rotation_right_toggle);
                 mButtonFight = (Button) stub.findViewById(R.id.fighting_toggle);
+
+                mText = (TextView) stub.findViewById(R.id.text);
+                mText.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        generateCommandMode();
+                    }
+                });
+                mText.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        commandSet.getWristCoverCommand().execute();
+
+                        return true;
+                    }
+                });
             }
         });
 
@@ -73,14 +104,51 @@ public class MainActivity extends Activity implements SensorEventListener {
         //mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
-        commandSet = commandSetFactory.create();
     }
-    /*
-    public void fromMobile(String mode) {
+
+    public void generateCommandMode() {
+        int index;
+
+        while(true) {
+            index = (int)(Math.random() * 10) % 7;
+
+            if(!MODE_ARRAY[index].equals(mode)) {// 임시로 중복 방지
+                break;
+            }
+        }
+
+        setText(MODE_ARRAY[index]);
+        setCommandMode(MODE_ARRAY[index]);
+
+        switch(index) {
+            case MODE_SLEEP:
+                break;
+            case MODE_WORKOUT:
+
+                break;
+            case MODE_CALL:
+                break;
+            case MODE_VIBRATE:
+                break;
+            case MODE_LUNCH:
+                break;
+            case MODE_NAVI:
+                break;
+            case MODE_WAKEUP:
+                break;
+        }
+    }
+
+    public void setText(String text) {
+        mText.setText(text);
+    }
+
+    public void setCommandMode(String mode) {
+        this.mode = mode;
+
         commandSet = commandSetFactory.mode(mode).create();
-        commandSet.getWristLeftCommand().execute();
     }
-    */
+
     public void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -93,7 +161,21 @@ public class MainActivity extends Activity implements SensorEventListener {
         mSensorManager.unregisterListener(this);
     }
 
+    public void makeToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
     public void requestContext(View view) {
+    }
+
+    @Override
+    public void onWorkoutStart() {
+        makeToast("Run ~~~");
+    }
+
+    @Override
+    public void onWorkoutFinish() {
+        makeToast("Welldone ~~~");
     }
 
     public void alarmToggle(View view) {
