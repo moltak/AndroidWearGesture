@@ -1,6 +1,8 @@
 package com.horde.samantha.samantha.util;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -14,6 +16,11 @@ public class ThirdpartyExectue {
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(destination));
         mapIntent.setPackage("com.google.android.apps.maps");
         activity.startActivity(mapIntent);
+    }
+
+    public static void killNavigation(Activity activity) {
+        ActivityManager mActivityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        mActivityManager.killBackgroundProcesses("com.google.android.apps.maps");
     }
 
     public static void runRuntastic(Activity activity) {
