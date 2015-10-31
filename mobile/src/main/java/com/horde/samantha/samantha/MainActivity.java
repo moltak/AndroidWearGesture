@@ -4,12 +4,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,12 +22,14 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.horde.samantha.samantha.bus.DataEventBus;
+import com.horde.samantha.samantha.util.PickImageByMode;
 import com.squareup.otto.Subscribe;
 
 import net.horde.commandsetlibrary.rest.RetrofitAdapterProvider;
 import net.horde.commandsetlibrary.rest.model.Result;
 import net.horde.commandsetlibrary.rest.service.Samanda;
 
+import butterknife.ButterKnife;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
@@ -49,11 +48,9 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
 
         DataEventBus.getBus().register(this);
-        createFloatingActionButton();
         createGoolgeApiClient();
         retrieveMode();
     }
@@ -96,18 +93,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     int count = 1;
-    private void createFloatingActionButton() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                count++;
-                sendToWear(String.valueOf(count));
-            }
-        });
-    }
 
     @Subscribe
     public void onDataEvent(com.horde.samantha.samantha.bus.DataEvent event) {
@@ -160,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements
                 .subscribe(new Action1<Result>() {
                     @Override
                     public void call(Result result) {
+                        ((ImageView) findViewById(R.id.imageViewMode)).setImageResource(PickImageByMode.pick(result.getMode()));
                         sendToWear(result.getMode());
                     }
                 }, new Action1<Throwable>() {
@@ -179,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(final DataApi.DataItemResult result) {
-                if(result.getStatus().isSuccess()) {
+                if (result.getStatus().isSuccess()) {
                     Log.d(TAG, "Item has been sent: " + mode);
                 }
             }
