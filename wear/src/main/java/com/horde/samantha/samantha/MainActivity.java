@@ -12,6 +12,7 @@ import android.os.Vibrator;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -197,6 +198,7 @@ public class MainActivity extends Activity implements
 
     private void createCommandSet(String mode) {
         setText(mode);
+        setImage(mode);
         commandSet = commandSetFactory.mode(mode).create();
         Log.d("TAG", commandSet.toString());
 
@@ -220,12 +222,15 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private void setImage(String mode) {
+        ((ImageView) findViewById(R.id.imageView)).setImageResource(PickImageByMode.pick(mode));
+    }
+
     public void playSleepMusicOnThePhone() {
         if(!flag_sleep) {
             makeToast("Night music ~~~");
 
             requestToMobile("sleep_on");
-
             flag_sleep = true;
         }
     }

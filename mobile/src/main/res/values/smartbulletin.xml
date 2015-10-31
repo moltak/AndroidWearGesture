@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="smartbulletin_provider_bg_color">#ff50cdf5</color>
+    <color name="smartbulletin_provider_title_color">#ffffffff</color>
+    <string name="smartbulletin_provider_default_activity">com.horde.samantha.samantha.MainActivity</string>
+</resources>
