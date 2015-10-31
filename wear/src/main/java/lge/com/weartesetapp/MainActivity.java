@@ -6,8 +6,11 @@ import android.support.wearable.view.DotsPageIndicator;
 import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 
+import net.horde.commandsetlibrary.command.CommandSetFactory;
+
 public class MainActivity extends Activity {
 
+    private CommandSetFactory commandSetFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,5 +28,9 @@ public class MainActivity extends Activity {
                 indicator.setPager(pager);
             }
         });
+
+        // my libary
+        commandSetFactory = new CommandSetFactory();
+
     }
 }

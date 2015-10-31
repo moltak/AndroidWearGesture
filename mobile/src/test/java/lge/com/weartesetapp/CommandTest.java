@@ -1,10 +1,11 @@
 package lge.com.weartesetapp;
 
+import net.horde.commandsetlibrary.command.CommandSet;
+import net.horde.commandsetlibrary.command.CommandSetFactory;
+import net.horde.commandsetlibrary.command.commandsets.FakeModeCommandSet;
+
 import org.junit.Test;
 
-import lge.com.weartesetapp.command.CommandSet;
-import lge.com.weartesetapp.command.CommandSetFactory;
-import lge.com.weartesetapp.command.commandsets.FakeModeCommandSet;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
