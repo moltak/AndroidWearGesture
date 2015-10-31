@@ -140,7 +140,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if (result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
+                    Log.d(TAG, "Item has been sent: " + COUNT);
                 }
             }
         });
