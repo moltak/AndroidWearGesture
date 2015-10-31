@@ -94,6 +94,7 @@ public class MainActivity extends Activity implements SensorEventListener,
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
         googleApiClient.connect();
         mSensorManager.registerListener(this, mAccSensor, SensorManager.SENSOR_DELAY_NORMAL);
         mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -101,6 +102,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected");
         Wearable.DataApi.addListener(googleApiClient, this);
     }
 
@@ -131,6 +133,7 @@ public class MainActivity extends Activity implements SensorEventListener,
     private void createCommandSet(String mode) {
         commandSet = commandSetFactory.mode(mode).create();
         Log.d("TAG", mode);
+        Log.d("TAG", commandSet.toString());
     }
 
     public void alarmToggle(View view) {

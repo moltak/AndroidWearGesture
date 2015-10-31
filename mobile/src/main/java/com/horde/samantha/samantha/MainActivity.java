@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                sendToWear("MODE");
             }
         });
     }
@@ -138,14 +137,14 @@ public class MainActivity extends AppCompatActivity implements
     private void sendToWear(String mode) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/mode");
         putDataMapReq.getDataMap().putString("com.samantha.data.mode", mode);
-        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        PutDataRequest request = putDataMapReq.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult =
-                Wearable.DataApi.putDataItem(googleApiClient, putDataReq);
+                Wearable.DataApi.putDataItem(googleApiClient, request);
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if(result.getStatus().isSuccess()) {
-                    Log.d(TAG, "Data item set: " + result.getDataItem().getUri());
+                    Log.d(TAG, "Item has been sent: " + result.getDataItem().getUri());
                 }
             }
         });
