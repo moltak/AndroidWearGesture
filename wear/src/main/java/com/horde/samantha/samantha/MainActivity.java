@@ -127,6 +127,7 @@ public class MainActivity extends Activity implements
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         // my libary
         commandSetFactory = new CommandSetFactory().context(this);
+        commandSet = commandSetFactory.create();
     }
 
     int COUNT = 0;
